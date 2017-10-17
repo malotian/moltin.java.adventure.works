@@ -1,0 +1,14 @@
+plugins {
+  id 'com.github.johnrengelman.shadow' version '2.0.1'
+  id 'application'
+  id "org.kordamp.markdown.convert" version "1.1.0"
+}
+
+apply from: 'common.gradle'
+apply plugin: 'markdown'
+
+test.enabled=false
+
+markdownToHtml.fencedCodeBlocks = false
+markdownToHtml.sourceDir = file("src/doc/md")
+markdownToHtml.outputDir = file("build/doc/html")

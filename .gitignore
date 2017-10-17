@@ -1,0 +1,8 @@
+/.gradle/
+/bin/
+/build/
+/logs/
+/gradle/
+/moltin-data/
+*.zip
+/gradle.properties

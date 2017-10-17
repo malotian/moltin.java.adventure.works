@@ -1,0 +1,46 @@
+/**
+ */
+package com.moltin.adventure.works;
+
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
+public class WSRequest {
+
+	static final JerseyClient client;
+
+	static {
+		java.util.logging.LogManager.getLogManager().reset();
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+
+		final ClientConfig config = new ClientConfig();
+		config.register(JacksonFeature.class);
+		config.register(JacksonJsonProvider.class);
+		config.register(jersyLoggingFeature());
+		config.register(HttpAuthenticationFeature.basic("5092.exelon.hpsm.service", "9yawxgqog0k"));
+		client = JerseyClientBuilder.createClient(config);
+	}
+
+	public static JerseyClient client() {
+		return client;
+	}
+
+	public static LoggingFeature jersyLoggingFeature() {
+		final java.util.logging.Logger jerseyLogger = java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME);
+		jerseyLogger.setLevel(java.util.logging.Level.ALL);
+		return new LoggingFeature(jerseyLogger, Verbosity.PAYLOAD_TEXT);
+	}
+
+	protected WSRequest() {
+
+	}
+}

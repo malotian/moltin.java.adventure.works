@@ -39,7 +39,7 @@ public class Driver {
 	public static void main(final String[] args) {
 		try {
 
-			AdventureWorksData awd = new AdventureWorksData(Paths.get("moltin-data"));
+			final AdventureWorksData awd = new AdventureWorksData(Paths.get("moltin-data"));
 			awd.initialize();
 
 			LOGGER.info("using moltin.aw.home: {}", Util.MOLTIN_AW_HOME);

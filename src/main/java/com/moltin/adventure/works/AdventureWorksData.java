@@ -157,7 +157,7 @@ public class AdventureWorksData {
 						// l.get("image"));
 						if (i.get("id").equals(l.get("image"))) {
 							v.put("image", i);
-							LOGGER.debug("variant: {}, image: {}", v, i);
+							// LOGGER.debug("variant: {}, image: {}", v, i);
 						}
 					});
 				}
@@ -191,8 +191,10 @@ public class AdventureWorksData {
 			variants.forEach(v -> {
 				if (v.get("model").equals(p.get("id")) && v.containsKey("category")) {
 					varities.add(v);
-					colors.add(p.get("color").toString());
-					sizes.add(p.get("size").toString());
+					if (p.containsKey("color"))
+						colors.add(p.get("color").toString());
+					if (p.containsKey("size"))
+						sizes.add(p.get("size").toString());
 				}
 			});
 

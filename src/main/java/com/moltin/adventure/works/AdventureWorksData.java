@@ -17,8 +17,13 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class AdventureWorksData {
 
@@ -123,12 +128,12 @@ public class AdventureWorksData {
 		clean("ProductDescription.csv", new String[] { "\"" }, StandardCharsets.UTF_16LE);
 
 		setCategories(read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII));
-		setProducts(
-				read("ProductModel.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"), StandardCharsets.UTF_16LE));
+		setProducts(read("ProductModel.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"),
+				StandardCharsets.UTF_16LE, true));
 		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"), StandardCharsets.UTF_16LE));
 		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"), StandardCharsets.US_ASCII));
 		setImages(read("ProductPhoto.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
-				StandardCharsets.UTF_16LE));
+				StandardCharsets.UTF_16LE, true));
 		setImagesLink(read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
 		setVariants(read("Product.csv",
 				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price", "size", "sizeUnit", "weightUnit",
@@ -148,6 +153,8 @@ public class AdventureWorksData {
 			imagesLink.forEach(l -> {
 				if (l.get("product").equals(v.get("id"))) {
 					images.forEach(i -> {
+						// LOGGER.debug("i.get(\"id\"): {}, l.get(\"image\"): {}", i.get("id"),
+						// l.get("image"));
 						if (i.get("id").equals(l.get("image"))) {
 							v.put("image", i);
 							LOGGER.debug("variant: {}, image: {}", v, i);
@@ -159,7 +166,7 @@ public class AdventureWorksData {
 			categories.forEach(c -> {
 				if (c.get("id").equals(v.get("subcategory"))) {
 					v.put("category", c);
-					LOGGER.debug("variant: {}, category: {}", v, c);
+					// LOGGER.debug("variant: {}, category: {}", v, c);
 
 				}
 			});
@@ -219,18 +226,44 @@ public class AdventureWorksData {
 
 	}
 
-	public Table read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
+	public Table read(final String fileName, final CSVFormat format, final Charset encoding, boolean strip) throws IOException {
 		final Table result = new Table();
 		final List<CSVRecord> records = _read(fileName, format, encoding);
 		records.forEach(r -> {
 			final Tuple m = new Tuple();
 			r.toMap().forEach((k, v) -> {
+				if (strip) {
+					v = StringUtils.substring(v, 0, -1);
+				}
 				m.put(k, v);
 			});
 			result.add(m);
 		});
 
 		return result;
+	}
+
+	public Table read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
+		return read(fileName, format, encoding, false);
+	}
+
+	void dump() throws JsonProcessingException, IOException {
+
+		File dumpDirectory = new File(directory.toString(), "processed");
+
+		FileUtils.deleteDirectory(dumpDirectory);
+		FileUtils.forceMkdir(dumpDirectory);
+
+		ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		FileUtils.write(new File(dumpDirectory, "categories.json"), writer.writeValueAsString(categories), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "products.json"), writer.writeValueAsString(products), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "descriptions.json"), writer.writeValueAsString(descriptions), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "images.json"), writer.writeValueAsString(images), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "imagesLink.json"), writer.writeValueAsString(imagesLink), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "variants.json"), writer.writeValueAsString(variants), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "orderHeader.json"), writer.writeValueAsString(orderHeader), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "orderDetail.json"), writer.writeValueAsString(orderDetail), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "descriptionsLink.json"), writer.writeValueAsString(descriptionsLink), StandardCharsets.US_ASCII);
 	}
 
 	public void setCategories(final Table categories) {

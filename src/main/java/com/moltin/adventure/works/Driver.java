@@ -45,6 +45,8 @@ public class Driver {
 			LOGGER.info("using moltin.aw.home: {}", Util.MOLTIN_AW_HOME);
 			final Driver broker = new Driver();
 			Context.put(Driver.class, broker.iniatilize());
+			
+			awd.dump();
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));

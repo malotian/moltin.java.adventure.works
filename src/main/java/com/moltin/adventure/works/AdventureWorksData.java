@@ -27,23 +27,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class AdventureWorksData {
 
-	@SuppressWarnings("serial")
-	class Table extends ArrayList<Tuple> {
-
-		public Table addX(Tuple tuple) {
-			super.add(tuple);
-			return this;
-		}
-	}
-
-	@SuppressWarnings("serial")
-	class Tuple extends HashMap<String, Object> {
-		public Tuple putX(String key, Object value) {
-			super.put(key, value);
-			return this;
-		}
-	}
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdventureWorksData.class);
 
 	private Table categories = new Table();
@@ -84,6 +67,25 @@ public class AdventureWorksData {
 		FileUtils.write(new File(directory.toString(), fileNameOnly + ".clean." + fileExtensionOnly), textFromFile, encoding);
 	}
 
+	void dump() throws JsonProcessingException, IOException {
+
+		final File dumpDirectory = new File(directory.toString(), "processed");
+
+		FileUtils.deleteDirectory(dumpDirectory);
+		FileUtils.forceMkdir(dumpDirectory);
+
+		final ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		FileUtils.write(new File(dumpDirectory, "categories.json"), writer.writeValueAsString(categories), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "products.json"), writer.writeValueAsString(products), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "descriptions.json"), writer.writeValueAsString(descriptions), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "images.json"), writer.writeValueAsString(images), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "imagesLink.json"), writer.writeValueAsString(imagesLink), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "variants.json"), writer.writeValueAsString(variants), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "orderHeader.json"), writer.writeValueAsString(orderHeader), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "orderDetail.json"), writer.writeValueAsString(orderDetail), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "descriptionsLink.json"), writer.writeValueAsString(descriptionsLink), StandardCharsets.US_ASCII);
+	}
+
 	public Table getCategories() {
 		return categories;
 	}
@@ -104,6 +106,10 @@ public class AdventureWorksData {
 		return imagesLink;
 	}
 
+	public Table getInventory() {
+		return getProducts();
+	}
+
 	public Table getOrderDetail() {
 		return orderDetail;
 	}
@@ -114,6 +120,10 @@ public class AdventureWorksData {
 
 	public Table getProducts() {
 		return products;
+	}
+
+	public Table getTransactions() {
+		return getOrderHeader();
 	}
 
 	public Table getVariants() {
@@ -151,11 +161,11 @@ public class AdventureWorksData {
 
 		variants.forEach(v -> {
 			imagesLink.forEach(l -> {
-				if (l.get("product").equals(v.get("id"))) {
+				if (l.getString("product").equals(v.getString("id"))) {
 					images.forEach(i -> {
 						// LOGGER.debug("i.get(\"id\"): {}, l.get(\"image\"): {}", i.get("id"),
 						// l.get("image"));
-						if (i.get("id").equals(l.get("image"))) {
+						if (i.getString("id").equals(l.getString("image"))) {
 							v.put("image", i);
 							// LOGGER.debug("variant: {}, image: {}", v, i);
 						}
@@ -164,7 +174,7 @@ public class AdventureWorksData {
 			});
 
 			categories.forEach(c -> {
-				if (c.get("id").equals(v.get("subcategory"))) {
+				if (c.getString("id").equals(v.getString("subcategory"))) {
 					v.put("category", c);
 					// LOGGER.debug("variant: {}, category: {}", v, c);
 
@@ -176,10 +186,10 @@ public class AdventureWorksData {
 			p.put("description", "Description not available");
 
 			descriptionsLink.forEach(l -> {
-				if (l.get("model").equals(p.get("id")) && "en".equals(l.get("culture"))) {
+				if (l.getString("model").equals(p.getString("id")) && "en".equals(l.getString("culture"))) {
 					descriptions.forEach(d -> {
-						if (d.get("id").equals(l.get("description"))) {
-							p.put("description", d.get("description"));
+						if (d.getString("id").equals(l.getString("description"))) {
+							p.put("description", d.getString("description"));
 						}
 					});
 				}
@@ -189,12 +199,14 @@ public class AdventureWorksData {
 			final List<String> sizes = new ArrayList<>();
 			final Table varities = new Table();
 			variants.forEach(v -> {
-				if (v.get("model").equals(p.get("id")) && v.containsKey("category")) {
+				if (v.getString("model").equals(p.getString("id")) && v.containsKey("category")) {
 					varities.add(v);
-					if (p.containsKey("color"))
-						colors.add(p.get("color").toString());
-					if (p.containsKey("size"))
-						sizes.add(p.get("size").toString());
+					if (v.containsKey("color")) {
+						colors.add(v.getString("color"));
+					}
+					if (v.containsKey("size")) {
+						sizes.add(v.getString("size"));
+					}
 				}
 			});
 
@@ -205,8 +217,8 @@ public class AdventureWorksData {
 
 		orderDetail.forEach(line -> {
 			variants.forEach(v1 -> {
-				if (v1.get("id").equals(line.get("productId"))) {
-					line.put("sku", v1.get("sku"));
+				if (v1.getString("id").equals(line.getString("productId"))) {
+					line.put("sku", v1.getString("sku"));
 				}
 			});
 		});
@@ -214,11 +226,11 @@ public class AdventureWorksData {
 		final Map<String, Table> groupedDetails = new HashMap<>();
 		for (final Tuple od : orderDetail) {
 
-			if (!groupedDetails.containsKey(od.get("orderId"))) {
-				groupedDetails.put(od.get("orderId").toString(), new Table());
+			if (!groupedDetails.containsKey(od.getString("orderId"))) {
+				groupedDetails.put(od.getString("orderId"), new Table());
 			}
 
-			final Table group = groupedDetails.get(od.get("orderId").toString());
+			final Table group = groupedDetails.get(od.getString("orderId"));
 			group.add(od);
 		}
 
@@ -226,6 +238,10 @@ public class AdventureWorksData {
 			oh.put("details", groupedDetails.get("orderId"));
 		});
 
+	}
+
+	public Table read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
+		return read(fileName, format, encoding, false);
 	}
 
 	public Table read(final String fileName, final CSVFormat format, final Charset encoding, boolean strip) throws IOException {
@@ -243,29 +259,6 @@ public class AdventureWorksData {
 		});
 
 		return result;
-	}
-
-	public Table read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
-		return read(fileName, format, encoding, false);
-	}
-
-	void dump() throws JsonProcessingException, IOException {
-
-		File dumpDirectory = new File(directory.toString(), "processed");
-
-		FileUtils.deleteDirectory(dumpDirectory);
-		FileUtils.forceMkdir(dumpDirectory);
-
-		ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		FileUtils.write(new File(dumpDirectory, "categories.json"), writer.writeValueAsString(categories), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "products.json"), writer.writeValueAsString(products), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "descriptions.json"), writer.writeValueAsString(descriptions), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "images.json"), writer.writeValueAsString(images), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "imagesLink.json"), writer.writeValueAsString(imagesLink), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "variants.json"), writer.writeValueAsString(variants), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "orderHeader.json"), writer.writeValueAsString(orderHeader), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "orderDetail.json"), writer.writeValueAsString(orderDetail), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "descriptionsLink.json"), writer.writeValueAsString(descriptionsLink), StandardCharsets.US_ASCII);
 	}
 
 	public void setCategories(final Table categories) {

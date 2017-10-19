@@ -12,10 +12,13 @@ import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class WSRequest {
 
 	static final JerseyClient client;
+	static final JsonParser parser = new JsonParser();
 
 	static {
 		java.util.logging.LogManager.getLogManager().reset();
@@ -38,6 +41,10 @@ public class WSRequest {
 		final java.util.logging.Logger jerseyLogger = java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME);
 		jerseyLogger.setLevel(java.util.logging.Level.ALL);
 		return new LoggingFeature(jerseyLogger, Verbosity.PAYLOAD_TEXT);
+	}
+
+	public static JsonObject toJsonObject(String input) {
+		return parser.parse(input).getAsJsonObject();
 	}
 
 	protected WSRequest() {

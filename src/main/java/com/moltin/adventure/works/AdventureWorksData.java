@@ -7,10 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -22,22 +19,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class AdventureWorksData {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdventureWorksData.class);
 
-	private Table categories = new Table();
-	private Table products = new Table();
-	private Table descriptions = new Table();
-	private Table images = new Table();
-	private Table imagesLink = new Table();
-	private Table variants = new Table();
-	private Table orderHeader = new Table();
-	private Table orderDetail = new Table();
-	private Table descriptionsLink = new Table();
+	private JsonArray categories = new JsonArray();
+	private JsonArray products = new JsonArray();
+	private JsonArray descriptions = new JsonArray();
+	private JsonArray images = new JsonArray();
+	private JsonArray imagesLink = new JsonArray();
+	private JsonArray variants = new JsonArray();
+	private JsonArray orderHeader = new JsonArray();
+	private JsonArray orderDetail = new JsonArray();
+	private JsonArray descriptionsLink = new JsonArray();
 	private Path directory = Paths.get(".");
 
 	public AdventureWorksData(final Path directory) {
@@ -74,59 +73,60 @@ public class AdventureWorksData {
 		FileUtils.deleteDirectory(dumpDirectory);
 		FileUtils.forceMkdir(dumpDirectory);
 
-		final ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		FileUtils.write(new File(dumpDirectory, "categories.json"), writer.writeValueAsString(categories), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "products.json"), writer.writeValueAsString(products), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "descriptions.json"), writer.writeValueAsString(descriptions), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "images.json"), writer.writeValueAsString(images), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "imagesLink.json"), writer.writeValueAsString(imagesLink), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "variants.json"), writer.writeValueAsString(variants), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "orderHeader.json"), writer.writeValueAsString(orderHeader), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "orderDetail.json"), writer.writeValueAsString(orderDetail), StandardCharsets.US_ASCII);
-		FileUtils.write(new File(dumpDirectory, "descriptionsLink.json"), writer.writeValueAsString(descriptionsLink), StandardCharsets.US_ASCII);
+		final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		FileUtils.write(new File(dumpDirectory, "categories.json"), gson.toJson(categories), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "products.json"), gson.toJson(products), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "descriptions.json"), gson.toJson(descriptions), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "images.json"), gson.toJson(images), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "imagesLink.json"), gson.toJson(imagesLink), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "variants.json"), gson.toJson(variants), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "orderHeader.json"), gson.toJson(orderHeader), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "orderDetail.json"), gson.toJson(orderDetail), StandardCharsets.US_ASCII);
+		FileUtils.write(new File(dumpDirectory, "descriptionsLink.json"), gson.toJson(descriptionsLink), StandardCharsets.US_ASCII);
 	}
 
-	public Table getCategories() {
+	public JsonArray getCategories() {
 		return categories;
 	}
 
-	public Table getDescriptions() {
+	public JsonArray getDescriptions() {
 		return descriptions;
 	}
 
-	public Table getDescriptionsLink() {
+	public JsonArray getDescriptionsLink() {
 		return descriptionsLink;
 	}
 
-	public Table getImages() {
+	public JsonArray getImages() {
 		return images;
 	}
 
-	public Table getImagesLink() {
+	public JsonArray getImagesLink() {
 		return imagesLink;
 	}
 
-	public Table getInventory() {
+	public JsonArray getInventory() {
 		return getProducts();
 	}
 
-	public Table getOrderDetail() {
+	public JsonArray getOrderDetail() {
 		return orderDetail;
 	}
 
-	public Table getOrderHeader() {
+	public JsonArray getOrderHeader() {
 		return orderHeader;
 	}
 
-	public Table getProducts() {
+	public JsonArray getProducts() {
 		return products;
 	}
 
-	public Table getTransactions() {
+	public JsonArray getTransactions() {
 		return getOrderHeader();
 	}
 
-	public Table getVariants() {
+	public JsonArray getVariants() {
 		return variants;
 	}
 
@@ -159,117 +159,138 @@ public class AdventureWorksData {
 				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid", "date"),
 				StandardCharsets.US_ASCII));
 
-		variants.forEach(v -> {
-			imagesLink.forEach(l -> {
-				if (l.getString("product").equals(v.getString("id"))) {
-					images.forEach(i -> {
-						// LOGGER.debug("i.get(\"id\"): {}, l.get(\"image\"): {}", i.get("id"),
-						// l.get("image"));
-						if (i.getString("id").equals(l.getString("image"))) {
-							v.put("image", i);
-							// LOGGER.debug("variant: {}, image: {}", v, i);
+		variants.forEach(_v -> {
+			final JsonObject v = _v.getAsJsonObject();
+			imagesLink.forEach(_l -> {
+				final JsonObject l = _l.getAsJsonObject();
+				if (l.get("product").equals(v.get("id"))) {
+					images.forEach(_i -> {
+						final JsonObject i = _i.getAsJsonObject();
+						if (i.get("id").equals(l.get("image"))) {
+							v.add("image", i);
 						}
 					});
 				}
 			});
 
-			categories.forEach(c -> {
-				if (c.getString("id").equals(v.getString("subcategory"))) {
-					v.put("category", c);
+			categories.forEach(_c -> {
+				final JsonObject c = _c.getAsJsonObject();
+				if (c.get("id").equals(v.get("subcategory"))) {
+					v.add("category", c);
 					// LOGGER.debug("variant: {}, category: {}", v, c);
 
 				}
 			});
 		});
 
-		products.forEach(p -> {
-			p.put("description", "Description not available");
+		products.forEach(_p -> {
+			final JsonObject p = _p.getAsJsonObject();
+			p.addProperty("description", "Description not available");
 
-			descriptionsLink.forEach(l -> {
-				if (l.getString("model").equals(p.getString("id")) && "en".equals(l.getString("culture"))) {
-					descriptions.forEach(d -> {
-						if (d.getString("id").equals(l.getString("description"))) {
-							p.put("description", d.getString("description"));
+			descriptionsLink.forEach(_l -> {
+				final JsonObject l = _l.getAsJsonObject();
+				if (l.get("model").equals(p.get("id")) && "en".equals(l.get("culture"))) {
+					descriptions.forEach(_d -> {
+						final JsonObject d = _d.getAsJsonObject();
+						if (d.get("id").equals(l.get("description"))) {
+							p.add("description", d.get("description"));
 						}
 					});
 				}
 			});
 
-			final List<String> colors = new ArrayList<>();
-			final List<String> sizes = new ArrayList<>();
-			final Table varities = new Table();
-			variants.forEach(v -> {
-				if (v.getString("model").equals(p.getString("id")) && v.containsKey("category")) {
+			final JsonArray colors = new JsonArray();
+			final JsonArray sizes = new JsonArray();
+			final JsonArray varities = new JsonArray();
+			variants.forEach(_v -> {
+				final JsonObject v = _v.getAsJsonObject();
+				if (v.get("model").equals(p.get("id")) && v.has("category")) {
 					varities.add(v);
-					if (v.containsKey("color")) {
-						colors.add(v.getString("color"));
+					if (v.has("color")) {
+						colors.add(v.get("color"));
 					}
-					if (v.containsKey("size")) {
-						sizes.add(v.getString("size"));
+					if (v.has("size")) {
+						sizes.add(v.get("size"));
 					}
 				}
 			});
 
-			p.put("variants", varities);
-			p.put("modifiers", new Table().addX(new Tuple().putX("title", "color").putX("values", colors)).addX(new Tuple().putX("title", "size").putX("values", sizes)));
+			final JsonObject mod1 = new JsonObject();
+			mod1.addProperty("title", "color");
+			mod1.add("values", colors);
+
+			final JsonObject mod2 = new JsonObject();
+			mod2.addProperty("title", "size");
+			mod2.add("values", sizes);
+
+			final JsonArray modifiers = new JsonArray();
+			modifiers.add(mod1);
+			modifiers.add(mod2);
+
+			//@formatter:off
+			p.add("variants", varities);
+			p.add("modifiers", modifiers);
+			//@formatter:on
 
 		});
 
-		orderDetail.forEach(line -> {
-			variants.forEach(v1 -> {
-				if (v1.getString("id").equals(line.getString("productId"))) {
-					line.put("sku", v1.getString("sku"));
+		orderDetail.forEach(_line -> {
+			final JsonObject line = _line.getAsJsonObject();
+			variants.forEach(_v1 -> {
+				final JsonObject v1 = _v1.getAsJsonObject();
+				if (v1.get("id").equals(line.get("productId"))) {
+					line.add("sku", v1.get("sku"));
 				}
 			});
 		});
 
-		final Map<String, Table> groupedDetails = new HashMap<>();
-		for (final Tuple od : orderDetail) {
+		final JsonObject groupedDetails = new JsonObject();
+		orderDetail.forEach(_od -> {
+			final JsonObject od = _od.getAsJsonObject();
+			final String orderId = od.get("orderId").getAsString();
 
-			if (!groupedDetails.containsKey(od.getString("orderId"))) {
-				groupedDetails.put(od.getString("orderId"), new Table());
+			if (!groupedDetails.has(orderId)) {
+				groupedDetails.add(orderId, new JsonArray());
 			}
+			groupedDetails.get(orderId).getAsJsonArray().add(od);
+		});
 
-			final Table group = groupedDetails.get(od.getString("orderId"));
-			group.add(od);
-		}
-
-		orderHeader.forEach(oh -> {
-			oh.put("details", groupedDetails.get("orderId"));
+		orderHeader.forEach(_oh -> {
+			final JsonObject oh = _oh.getAsJsonObject();
+			oh.add("details", groupedDetails.get("orderId"));
 		});
 
 	}
 
-	public Table read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
+	public JsonArray read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
 		return read(fileName, format, encoding, false);
 	}
 
-	public Table read(final String fileName, final CSVFormat format, final Charset encoding, boolean strip) throws IOException {
-		final Table result = new Table();
+	public JsonArray read(final String fileName, final CSVFormat format, final Charset encoding, boolean strip) throws IOException {
+		final JsonArray ja = new JsonArray();
 		final List<CSVRecord> records = _read(fileName, format, encoding);
 		records.forEach(r -> {
-			final Tuple m = new Tuple();
+			final JsonObject jo = new JsonObject();
 			r.toMap().forEach((k, v) -> {
 				if (strip) {
 					v = StringUtils.substring(v, 0, -1);
 				}
-				m.put(k, v);
+				jo.addProperty(k, v);
 			});
-			result.add(m);
+			ja.add(jo);
 		});
-
-		return result;
+		return ja;
 	}
 
-	public void setCategories(final Table categories) {
+	public void setCategories(final JsonArray categories) {
 		this.categories = categories;
 	}
 
-	public void setDescriptions(final Table descriptions) {
+	public void setDescriptions(final JsonArray descriptions) {
 		this.descriptions = descriptions;
 	}
 
-	private void setDescriptionsLink(final Table descriptionsLink) {
+	private void setDescriptionsLink(final JsonArray descriptionsLink) {
 		this.descriptionsLink = descriptionsLink;
 	}
 
@@ -277,27 +298,27 @@ public class AdventureWorksData {
 		this.directory = directory;
 	}
 
-	public void setImages(final Table images) {
+	public void setImages(final JsonArray images) {
 		this.images = images;
 	}
 
-	public void setImagesLink(final Table imagesLink) {
+	public void setImagesLink(final JsonArray imagesLink) {
 		this.imagesLink = imagesLink;
 	}
 
-	public void setOrderDetail(final Table orderDetail) {
+	public void setOrderDetail(final JsonArray orderDetail) {
 		this.orderDetail = orderDetail;
 	}
 
-	public void setOrderHeader(final Table orderHeader) {
+	public void setOrderHeader(final JsonArray orderHeader) {
 		this.orderHeader = orderHeader;
 	}
 
-	public void setProducts(final Table products) {
+	public void setProducts(final JsonArray products) {
 		this.products = products;
 	}
 
-	public void setVariants(final Table variants) {
+	public void setVariants(final JsonArray variants) {
 		this.variants = variants;
 	}
 

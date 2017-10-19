@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.LogManager;
@@ -20,7 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.moltin.api.v2.AuthenticateRequest;
+import com.moltin.api.v2.CategoryTreeRequest;
 import com.moltin.api.v2.CreateCategoryCategoryRelationshipRequest;
 import com.moltin.api.v2.CreateCategoryRequest;
 import com.moltin.api.v2.categories.Category;
@@ -65,45 +66,45 @@ public class Driver {
 	}
 
 	public static void processCategories(AdventureWorksData awd) throws IOException {
-		final Map<String, String> cache = new HashMap<>();
+		final JsonObject cache = new JsonObject();
 
-		final Table productCategories = awd.read("ProductCategory.csv", CSVFormat.TDF.withHeader("id", "name", "guid", "date"), StandardCharsets.US_ASCII);
-		productCategories.forEach(c -> {
+		final JsonArray productCategories = awd.read("ProductCategory.csv", CSVFormat.TDF.withHeader("id", "name", "guid", "date"), StandardCharsets.US_ASCII);
+		productCategories.forEach(_c -> {
+			final JsonObject c = _c.getAsJsonObject();
 			//@formatter:off
 			final Category category = new Category()
 					.withData(new Data()
 							.withType("category")
-							.withName(c.getString("name"))
-							.withDescription(c.getString("name"))
-							.withSlug(c.getString("name"))
+							.withName(c.get("name").getAsString())
+							.withDescription(c.get("name").getAsString())
+							.withSlug(c.get("name").getAsString())
 							.withStatus("live"));
 
 			final CreateCategoryRequest ccr = new CreateCategoryRequest();
-			cache.put(c.getString("id"), ccr.request(category));
+			final String uuid = ccr.request(category).get("data").getAsJsonObject().get("id").getAsString();
+			cache.addProperty(c.get("id").getAsString(), uuid);
 			//@formatter:on
 		});
 
-		final Table productSubcategories = awd.read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII);
-		productSubcategories.forEach(sc -> {
+		final JsonArray productSubcategories = awd.read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII);
+		productSubcategories.forEach(_sc -> {
+			final JsonObject sc = _sc.getAsJsonObject();
 			//@formatter:off
 			final Category category = new Category()
 					.withData(new Data()
 							.withType("category")
-							.withName(sc.getString("name"))
-							.withDescription(sc.getString("name"))
-							.withSlug(sc.getString("name").toLowerCase())
+							.withName(sc.get("name").getAsString())
+							.withDescription(sc.get("name").getAsString())
+							.withSlug(sc.get("name").getAsString().toLowerCase())
 							.withStatus("live"));
 			final CreateCategoryRequest ccr = new CreateCategoryRequest();
-			final String uuid = ccr.request(category);
-
-			LOGGER.debug("parent: {}", sc.getString("parent"));
-			LOGGER.debug("parent-id: {}", cache.get(sc.getString("parent")));
+			final String uuid = ccr.request(category).get("data").getAsJsonObject().get("id").getAsString();
 
 			//Datum datum = new Datum().withType("category").withId(sc.get("parent").toString());
 			final ParentRelationship relationship = new ParentRelationship()
 					.withData(new com.moltin.api.v2.relationships.Data()
 							.withParent(new Parent()
-									.withId(cache.get(sc.getString("parent")))
+									.withId(cache.get(sc.get("parent").getAsString()).getAsString())
 									.withType("category")));
 			final CreateCategoryCategoryRelationshipRequest ccrr = new CreateCategoryCategoryRelationshipRequest();
 			ccrr.request(uuid, relationship);
@@ -111,7 +112,10 @@ public class Driver {
 			//@formatter:on
 		});
 
-		awd.getInventory().forEach(product -> {
+		final JsonObject categoriesT = new CategoryTreeRequest().request();
+		awd.getInventory().forEach(_product -> {
+			final JsonObject product = _product.getAsJsonObject();
+
 		});
 
 	}

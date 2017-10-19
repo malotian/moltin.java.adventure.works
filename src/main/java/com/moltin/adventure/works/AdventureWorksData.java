@@ -206,10 +206,10 @@ public class AdventureWorksData {
 				final JsonObject v = _v.getAsJsonObject();
 				if (v.get("model").equals(p.get("id")) && v.has("category")) {
 					varities.add(v);
-					if (v.has("color")) {
+					if (v.has("color") && !colors.contains(v.get("color"))) {
 						colors.add(v.get("color"));
 					}
-					if (v.has("size")) {
+					if (v.has("size") && !colors.contains(v.get("size"))) {
 						sizes.add(v.get("size"));
 					}
 				}

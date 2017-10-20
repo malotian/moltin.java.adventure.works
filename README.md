@@ -66,7 +66,7 @@ issue commands
 ####### location of downloaded adventure works data (path of the folder containing csv files)
 ####### make sure path doesn't contain spaces
 
-	adventure.works.data.location=d:/downloads/adventure.works data
+	adventure.works.data.location=d:/downloads/adventure.works.data
 
 ##########end - application.properties#############
 

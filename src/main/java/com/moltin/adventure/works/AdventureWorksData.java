@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
@@ -28,6 +29,44 @@ public class AdventureWorksData {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdventureWorksData.class);
 
+	public static void main(String[] args) throws IOException {
+		final AdventureWorksData awd = new AdventureWorksData(Paths.get("moltin-data"));
+		// awd.initialize();
+		awd.setVariants(awd.read("Product.csv",
+				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price", "size", "sizeUnit", "weightUnit",
+						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate", "discontinuedDate", "guid",
+						"modified"),
+				StandardCharsets.US_ASCII));
+
+		final JsonObject groupedBySku = new JsonObject();
+		awd.getVariants().forEach(_v -> {
+			final JsonObject od = _v.getAsJsonObject();
+			final String sku = od.get("sku").getAsString().substring(0, 7);
+			final String model = od.get("model").getAsString();
+			// System.out.println(MessageFormat.format("sku: {0}, model: {1}", sku, model));
+
+			if (!groupedBySku.has(sku)) {
+				groupedBySku.add(sku, new JsonArray());
+			}
+
+			// JsonObject var = new JsonObject();
+			// var.add("model", od.get("model"));
+
+			if (!groupedBySku.get(sku).getAsJsonArray().contains(od.get("model"))) {
+				groupedBySku.get(sku).getAsJsonArray().add(od.get("model"));
+			}
+
+			if (groupedBySku.get(sku).getAsJsonArray().size() > 1) {
+				System.out.println(MessageFormat.format("sku: {0}, model: {1}", od.get("sku"), model));
+			}
+
+		});
+
+		final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		FileUtils.write(new File("moltin-data/processed", "temp.json"), gson.toJson(groupedBySku), StandardCharsets.US_ASCII);
+
+	}
+
 	private JsonArray categories = new JsonArray();
 	private JsonArray products = new JsonArray();
 	private JsonArray descriptions = new JsonArray();
@@ -37,6 +76,7 @@ public class AdventureWorksData {
 	private JsonArray orderHeader = new JsonArray();
 	private JsonArray orderDetail = new JsonArray();
 	private JsonArray descriptionsLink = new JsonArray();
+
 	private Path directory = Paths.get(".");
 
 	public AdventureWorksData(final Path directory) {
@@ -206,10 +246,10 @@ public class AdventureWorksData {
 				final JsonObject v = _v.getAsJsonObject();
 				if (v.get("model").equals(p.get("id")) && v.has("category")) {
 					varities.add(v);
-					if (v.has("color") && !colors.contains(v.get("color"))) {
+					if (v.has("color") && StringUtils.isNotBlank(v.get("color").getAsString()) && !colors.contains(v.get("color"))) {
 						colors.add(v.get("color"));
 					}
-					if (v.has("size") && !colors.contains(v.get("size"))) {
+					if (v.has("size") && StringUtils.isNotBlank(v.get("size").getAsString()) && !colors.contains(v.get("size"))) {
 						sizes.add(v.get("size"));
 					}
 				}

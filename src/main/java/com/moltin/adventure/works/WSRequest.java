@@ -48,6 +48,5 @@ public class WSRequest {
 	}
 
 	protected WSRequest() {
-
 	}
 }

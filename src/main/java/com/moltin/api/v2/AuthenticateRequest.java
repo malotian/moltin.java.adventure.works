@@ -25,7 +25,7 @@ public class AuthenticateRequest extends WSRequest {
 			Context.put(AuthenticateResponse.class, authenticateResponse);
 			return true;
 		} catch (final Exception e) {
-			LOGGER.error("failure, while authenticate (hence not updated), exceprion: {}", ExceptionUtils.getStackTrace(e));
+			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
 			return false;
 		}
 	}

@@ -3,6 +3,7 @@
 /build/
 /logs/
 /gradle/
-/moltin-data/
+/moltin-data/processed/
 *.zip
+*.rar
 /gradle.properties

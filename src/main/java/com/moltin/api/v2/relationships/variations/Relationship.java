@@ -1,5 +1,8 @@
 
-package com.moltin.api.v2.relationships;
+package com.moltin.api.v2.relationships.variations;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -11,23 +14,23 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "data" })
-public class ParentRelationship {
+public class Relationship {
 
 	@JsonProperty("data")
-	private Data data;
+	private List<Datum> data = new ArrayList<>();
 
 	/**
 	 * No args constructor for use in serialization
 	 *
 	 */
-	public ParentRelationship() {
+	public Relationship() {
 	}
 
 	/**
 	 *
 	 * @param data
 	 */
-	public ParentRelationship(Data data) {
+	public Relationship(List<Datum> data) {
 		super();
 		this.data = data;
 	}
@@ -37,15 +40,15 @@ public class ParentRelationship {
 		if (other == this) {
 			return true;
 		}
-		if (other instanceof ParentRelationship == false) {
+		if (other instanceof Relationship == false) {
 			return false;
 		}
-		final ParentRelationship rhs = (ParentRelationship) other;
+		final Relationship rhs = (Relationship) other;
 		return new EqualsBuilder().append(data, rhs.data).isEquals();
 	}
 
 	@JsonProperty("data")
-	public Data getData() {
+	public List<Datum> getData() {
 		return data;
 	}
 
@@ -55,7 +58,7 @@ public class ParentRelationship {
 	}
 
 	@JsonProperty("data")
-	public void setData(Data data) {
+	public void setData(List<Datum> data) {
 		this.data = data;
 	}
 
@@ -64,7 +67,7 @@ public class ParentRelationship {
 		return new ToStringBuilder(this).append("data", data).toString();
 	}
 
-	public ParentRelationship withData(Data data) {
+	public Relationship withData(List<Datum> data) {
 		this.data = data;
 		return this;
 	}

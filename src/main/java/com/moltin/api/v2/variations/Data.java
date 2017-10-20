@@ -1,5 +1,5 @@
 
-package com.moltin.api.v2.relationships;
+package com.moltin.api.v2.variations;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -10,30 +10,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "type", "id" })
-public class Parent {
+@JsonPropertyOrder({ "type", "name" })
+public class Data {
 
 	@JsonProperty("type")
 	private String type;
-	@JsonProperty("id")
-	private String id;
+	@JsonProperty("name")
+	private String name;
 
 	/**
 	 * No args constructor for use in serialization
 	 *
 	 */
-	public Parent() {
+	public Data() {
 	}
 
 	/**
 	 *
-	 * @param id
+	 * @param name
 	 * @param type
 	 */
-	public Parent(String type, String id) {
+	public Data(String type, String name) {
 		super();
 		this.type = type;
-		this.id = id;
+		this.name = name;
 	}
 
 	@Override
@@ -41,16 +41,16 @@ public class Parent {
 		if (other == this) {
 			return true;
 		}
-		if (other instanceof Parent == false) {
+		if (other instanceof Data == false) {
 			return false;
 		}
-		final Parent rhs = (Parent) other;
-		return new EqualsBuilder().append(id, rhs.id).append(type, rhs.type).isEquals();
+		final Data rhs = (Data) other;
+		return new EqualsBuilder().append(name, rhs.name).append(type, rhs.type).isEquals();
 	}
 
-	@JsonProperty("id")
-	public String getId() {
-		return id;
+	@JsonProperty("name")
+	public String getName() {
+		return name;
 	}
 
 	@JsonProperty("type")
@@ -60,12 +60,12 @@ public class Parent {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(id).append(type).toHashCode();
+		return new HashCodeBuilder().append(name).append(type).toHashCode();
 	}
 
-	@JsonProperty("id")
-	public void setId(String id) {
-		this.id = id;
+	@JsonProperty("name")
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@JsonProperty("type")
@@ -75,15 +75,15 @@ public class Parent {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("type", type).append("id", id).toString();
+		return new ToStringBuilder(this).append("type", type).append("name", name).toString();
 	}
 
-	public Parent withId(String id) {
-		this.id = id;
+	public Data withName(String name) {
+		this.name = name;
 		return this;
 	}
 
-	public Parent withType(String type) {
+	public Data withType(String type) {
 		this.type = type;
 		return this;
 	}

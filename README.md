@@ -25,23 +25,23 @@ Note: above line will fix data issue data.
 
 # create jar
 downlod/checkout source code into some directory. for example- moltin.java.adventure.works
-open teminal, change directory to moltin.java.adventure.works
+open terminal, change directory to moltin.java.adventure.works
 
 	gradle build
 
 after successful build, go to moltin.java.adventure.works/build/libs and copy moltin.java.adventure.works-all.jar to directory from where you want to run java component.
 
 # extract configuration files from jar-
-change your directory to location where you copied moltin.java.adventure.works-all.jar
+open terminal, change your directory to location where you copied moltin.java.adventure.works-all.jar
 
-issue comamnds - 
+issue comamnds
 
 	jar xf moltin.java.adventure.works-all.jar sample.application.properties
 	jar xf moltin.java.adventure.works-all.jar sample.log4j.properties
 
 sample.application.properties and sample.log4j.properties will be created in current directory
 
-# setup configuration files-
+# setup configuration files
 issue commands
  
 	mv sample.application.properties application.properties
@@ -56,14 +56,17 @@ issue commands
 ##########start - application.properties#############
 
 ####### moltiin api - client id
-moltin.api.client.id=MyKjhjJZNUnnVHFNPMeiifK7Ja9uEgGMStsSReLkJb
+
+	moltin.api.client.id=MyKjhjJZNUnnVHFNPMeiifK7Ja9uEgGMStsSReLkJb
 
 ####### moltiin api - secret/password
-moltin.api.client.secret=8WQtgGKX41YKyK6mt4LSe95eirufujcc8lux4dzzuf
+
+	moltin.api.client.secret=8WQtgGKX41YKyK6mt4LSe95eirufujcc8lux4dzzuf
 
 ####### location of downloaded adventure works data (path of the folder containing csv files)
 ####### make sure path doesn't contain spaces
-adventure.works.data.location=d:/downloads/adventure.works data
+
+	adventure.works.data.location=d:/downloads/adventure.works data
 
 ##########end - application.properties#############
 

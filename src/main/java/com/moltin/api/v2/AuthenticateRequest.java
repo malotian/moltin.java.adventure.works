@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcabi.aspects.Loggable;
-import com.moltin.adventure.works.Configuration;
-import com.moltin.adventure.works.Context;
+import com.moltin.adventure.works.app.Configuration;
+import com.moltin.adventure.works.app.Context;
 import com.moltin.api.RestRequest;
 
 public class AuthenticateRequest extends RestRequest {

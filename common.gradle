@@ -1,4 +1,4 @@
-mainClassName='com.exelon.hpsm.broker.HPSMBroker'
+mainClassName='com.moltin.adventure.works.app.Application'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

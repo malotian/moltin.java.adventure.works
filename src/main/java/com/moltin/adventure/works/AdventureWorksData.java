@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
@@ -28,44 +27,6 @@ import com.google.gson.JsonObject;
 public class AdventureWorksData {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdventureWorksData.class);
-
-	public static void main(String[] args) throws IOException {
-		final AdventureWorksData awd = new AdventureWorksData(Paths.get("moltin-data"));
-		// awd.initialize();
-		awd.setVariants(awd.read("Product.csv",
-				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price", "size", "sizeUnit", "weightUnit",
-						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate", "discontinuedDate", "guid",
-						"modified"),
-				StandardCharsets.US_ASCII));
-
-		final JsonObject groupedBySku = new JsonObject();
-		awd.getVariants().forEach(_v -> {
-			final JsonObject od = _v.getAsJsonObject();
-			final String sku = od.get("sku").getAsString().substring(0, 7);
-			final String model = od.get("model").getAsString();
-			// System.out.println(MessageFormat.format("sku: {0}, model: {1}", sku, model));
-
-			if (!groupedBySku.has(sku)) {
-				groupedBySku.add(sku, new JsonArray());
-			}
-
-			// JsonObject var = new JsonObject();
-			// var.add("model", od.get("model"));
-
-			if (!groupedBySku.get(sku).getAsJsonArray().contains(od.get("model"))) {
-				groupedBySku.get(sku).getAsJsonArray().add(od.get("model"));
-			}
-
-			if (groupedBySku.get(sku).getAsJsonArray().size() > 1) {
-				System.out.println(MessageFormat.format("sku: {0}, model: {1}", od.get("sku"), model));
-			}
-
-		});
-
-		final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		FileUtils.write(new File("moltin-data/processed", "temp.json"), gson.toJson(groupedBySku), StandardCharsets.US_ASCII);
-
-	}
 
 	private JsonArray categories = new JsonArray();
 	private JsonArray products = new JsonArray();
@@ -92,6 +53,34 @@ public class AdventureWorksData {
 			return CSVParser.parse(new File(directory.toString(), fileNameOnly + ".clean." + fileExtensionOnly), encoding, format).getRecords();
 		}
 		return CSVParser.parse(new File(directory.toString(), fileName), encoding, format).getRecords();
+	}
+
+	void checkSanity() {
+
+		final JsonObject groupedBySku = new JsonObject();
+
+		getVariants().forEach(_variant -> {
+			final JsonObject variant = _variant.getAsJsonObject();
+
+			final String sku = variant.get("sku").getAsString().substring(0, 7);
+
+			if (!groupedBySku.has(sku)) {
+				groupedBySku.add(sku, new JsonArray());
+			}
+
+			final int size1 = groupedBySku.get(sku).getAsJsonArray().size();
+
+			if (!groupedBySku.get(sku).getAsJsonArray().contains(variant.get("model"))) {
+				groupedBySku.get(sku).getAsJsonArray().add(variant.get("model"));
+			}
+			final int size2 = groupedBySku.get(sku).getAsJsonArray().size();
+
+			if (size2 > size1 && size2 > 1) {
+				LOGGER.error("variants with same sku: {}, but differnet models: {}", sku, groupedBySku.get(sku));
+				throw new RuntimeException("invalid data - products.csv");
+			}
+
+		});
 	}
 
 	void clean(final String fileName, final String[] patternsToRemove, final Charset encoding) throws IOException {
@@ -170,7 +159,7 @@ public class AdventureWorksData {
 		return variants;
 	}
 
-	void initialize() throws IOException {
+	public void initialize() throws IOException {
 
 		clean("ProductModel.csv", new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
 				StandardCharsets.UTF_16LE);
@@ -267,10 +256,8 @@ public class AdventureWorksData {
 			modifiers.add(mod1);
 			modifiers.add(mod2);
 
-			//@formatter:off
 			p.add("variants", varities);
 			p.add("modifiers", modifiers);
-			//@formatter:on
 
 		});
 
@@ -300,6 +287,7 @@ public class AdventureWorksData {
 			oh.add("details", groupedDetails.get("orderId"));
 		});
 
+		checkSanity();
 	}
 
 	public JsonArray read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {

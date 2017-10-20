@@ -23,7 +23,7 @@ import com.moltin.api.v2.variations.Variation;
 
 public class MoltinStore {
 
-	void deleteCategories() {
+	public void deleteCategories() {
 		final JsonObject products = new MoltinRequest("categories").get();
 		products.getAsJsonArray("data").forEach(_product -> {
 			final JsonObject product = _product.getAsJsonObject();
@@ -31,7 +31,7 @@ public class MoltinStore {
 		});
 	}
 
-	void deleteProducts() {
+	public void deleteProducts() {
 		final JsonObject products = new MoltinRequest("products").get();
 		products.getAsJsonArray("data").forEach(_product -> {
 			final JsonObject product = _product.getAsJsonObject();
@@ -39,7 +39,7 @@ public class MoltinStore {
 		});
 	}
 
-	MoltinStore initialize() {
+	public MoltinStore initialize() {
 		final AuthenticateRequest authenticateRequest = new AuthenticateRequest();
 		authenticateRequest.request();
 		return this;

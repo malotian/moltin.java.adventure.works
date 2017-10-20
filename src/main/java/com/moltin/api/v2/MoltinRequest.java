@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.jcabi.aspects.Loggable;
-import com.moltin.adventure.works.Context;
+import com.moltin.adventure.works.app.Context;
 import com.moltin.api.RestRequest;
 
 public class MoltinRequest extends RestRequest {

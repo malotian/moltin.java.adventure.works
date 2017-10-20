@@ -12,4 +12,4 @@ Copy followings to moltin-data folder
  7. SalesOrderHeader.csv
  8. SalesOrderDetail.csv
 
-Note: keep moltin-data/product.csv
+Note: There is an existing moltin-data/product.csv file (in repository), that shouldn't be overwritten.

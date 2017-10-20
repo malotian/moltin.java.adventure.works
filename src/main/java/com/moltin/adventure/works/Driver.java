@@ -214,10 +214,6 @@ public class Driver {
 											.withId(uuidProductModifier));
 
 						}
-						else
-						{
-							LOGGER.warn("vo.get(\"name\"): {} value: {}, name:", vo.get("name"), value);
-						}
 					});
 				});
 

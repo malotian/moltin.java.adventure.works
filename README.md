@@ -1,7 +1,7 @@
-#  overview-
-java component to populate moltin store with adventure works](https://msftdbprodsamples.codeplex.com/releases/view/125550) data.
+#  overview
+java component to populate moltin store with [adventure works](https://msftdbprodsamples.codeplex.com/releases/view/125550) data.
 
-# pre-requisites-
+# pre-requisites
 1- java jdk 1.7 or above.
 	to download refer to- http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
@@ -12,7 +12,6 @@ after downloading both, add java and gradle in environment variable.
 refer to https://www.java.com/en/download/help/path.xml on how to add path in windows and unix machine.
 
 # prepare adventure.works data
-
 download & extarct [Adventure Works](https://msftdbprodsamples.codeplex.com/releases/view/125550) data.
 replace following line in product.csv 
 
@@ -24,7 +23,7 @@ with
 
 Note: above line will fix data issue data.
 
-# creating jar-
+# create jar
 downlod/checkout source code into some directory. for example- moltin.java.adventure.works
 open teminal, change directory to moltin.java.adventure.works
 
@@ -43,7 +42,8 @@ issue comamnds -
 sample.application.properties and sample.log4j.properties will be created in current directory
 
 # setup configuration files-
-run command - 
+issue commands
+ 
 	mv sample.application.properties application.properties
 	mv sample.log4j.properties log4j.properties`
 

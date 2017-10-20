@@ -74,6 +74,6 @@ issue commands
 
 change your directory to moltin.java.adventure.works-home-dir where moltin.java.adventure.works-app-jar is located. and issue a command
 
-     java -DMOLTIN_JAVA_ADVENTURE_WORKS_HOME=<moltin.java.adventure.works-home-dir> -jar <moltin.java.adventure.works-app-jar> 
+     java -DMOLTIN_JAVA_ADVENTURE_WORKS_HOME=<moltin.java.adventure.works-home-dir> -jar moltin.java.adventure.works-all.jar 
 
 in this command jvm argument `moltin.java.adventure.works.home` specifies directory containing application.properties.

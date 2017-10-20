@@ -157,9 +157,9 @@ public class Driver {
 							.withCurrency("USD")
 							.withIncludesTax(true)))
 					.withStatus("live")
-					.withDescription(variant.get("name").getAsString())
+					.withDescription(product.get("name").getAsString())
 					.withManageStock(true)
-					.withName(variant.get("name").getAsString())
+					.withName(product.get("name").getAsString())
 					/*.withDimensions(Arrays.asList(new Dimension()
 							.withMeasurement("length")
 							.withUnit("cm")
@@ -173,7 +173,7 @@ public class Driver {
 							.withUnit("cm")
 							.withValue(variant.get("size").getAsString())))*/
 					.withCommodityType("physical")
-					.withSlug(variant.get("name").getAsString().toLowerCase().replace(" ", "-"))
+					.withSlug(product.get("name").getAsString().toLowerCase().replace(" ", "-"))
 					.withSku(variant.get("sku").getAsString().substring(0, 7))
 					.withType("product"));
 
@@ -213,6 +213,10 @@ public class Driver {
 											.withType("product-variation")
 											.withId(uuidProductModifier));
 
+						}
+						else
+						{
+							LOGGER.warn("vo.get(\"name\"): {} value: {}, name:", vo.get("name"), value);
 						}
 					});
 				});

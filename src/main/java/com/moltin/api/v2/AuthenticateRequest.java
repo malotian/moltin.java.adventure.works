@@ -29,7 +29,10 @@ public class AuthenticateRequest extends WSRequest {
 			return false;
 		}
 	}
+	
 
+	// moltin-test
+	// https://accounts.moltin.com/stores/1602827953735991298
 	@Loggable(Loggable.DEBUG)
 	private Response requestUnsafe() {
 		final Response httpAuthenticateResponse = client().target("https://api.moltin.com/oauth/access_token").request() // $NON-NLS-1$

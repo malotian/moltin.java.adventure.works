@@ -31,7 +31,7 @@ open terminal, change directory to moltin.java.adventure.works
 
 after successful build, go to moltin.java.adventure.works/build/libs and copy moltin.java.adventure.works-all.jar to directory from where you want to run java component.
 
-# extract configuration files from jar-
+# extract sample/template configuration files from jar itself
 open terminal, change your directory to location where you copied moltin.java.adventure.works-all.jar
 
 issue comamnds

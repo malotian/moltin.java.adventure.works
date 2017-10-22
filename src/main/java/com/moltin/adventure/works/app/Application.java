@@ -42,9 +42,14 @@ public class Application {
 
 			final Application driver = new Application();
 			driver.initialize();
+
 			LOGGER.info("using moltin.aw.home: {}", Util.MOLTIN_JAVA_ADVENTURE_WORKS_HOME);
+
+			driver.getAdventureWorksData().dump();
+
 			driver.getMoltinStore().deleteProducts();
 			driver.getMoltinStore().deleteCategories();
+			driver.getMoltinStore().deleteFiles();
 			driver.getMoltinStore().populate(driver.getAdventureWorksData());
 
 		} catch (final Exception e) {

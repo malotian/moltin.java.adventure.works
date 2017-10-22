@@ -8,6 +8,7 @@ import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -28,6 +29,7 @@ public class RestRequest {
 		config.register(JacksonFeature.class);
 		config.register(JacksonJsonProvider.class);
 		config.register(jersyLoggingFeature());
+		config.register(MultiPartFeature.class);
 		client = JerseyClientBuilder.createClient(config);
 	}
 

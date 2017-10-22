@@ -1,10 +1,13 @@
 package com.moltin.adventure.works;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.commons.csv.CSVFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -23,15 +26,28 @@ import com.moltin.api.v2.variations.Variation;
 
 public class MoltinStore {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MoltinStore.class);
+
 	public void deleteCategories() {
+		LOGGER.debug("deleting categories");
 		final JsonObject products = new MoltinRequest("categories").get();
+		products.getAsJsonArray("data").forEach(_category -> {
+			final JsonObject category = _category.getAsJsonObject();
+			new MoltinRequest("categories", category.get("id").getAsString()).delete();
+		});
+	}
+
+	public void deleteFiles() {
+		LOGGER.debug("deleting files");
+		final JsonObject products = new MoltinRequest("files").get();
 		products.getAsJsonArray("data").forEach(_product -> {
 			final JsonObject product = _product.getAsJsonObject();
-			new MoltinRequest("categoriesS", product.get("id").getAsString()).delete();
+			new MoltinRequest("files", product.get("id").getAsString()).delete();
 		});
 	}
 
 	public void deleteProducts() {
+		LOGGER.debug("deleting products");
 		final JsonObject products = new MoltinRequest("products").get();
 		products.getAsJsonArray("data").forEach(_product -> {
 			final JsonObject product = _product.getAsJsonObject();
@@ -110,7 +126,8 @@ public class MoltinStore {
 				}
 			});
 
-			final Product cp = new Product().withData(new com.moltin.api.v2.products.Data()
+
+			final Product product2 = new Product().withData(new com.moltin.api.v2.products.Data()
 					/*.withWeight(new Weight().withUnit("kg")
 							.withValue("1"))*/
 					.withPrice(Arrays.asList(new Price()
@@ -138,7 +155,30 @@ public class MoltinStore {
 					.withSku(variant.get("sku").getAsString().substring(0, 7))
 					.withType("product"));
 
-			final String uuidProduct = new MoltinRequest("products").create(cp).get("data").getAsJsonObject().get("id").getAsString();
+			final String uuidProduct = new MoltinRequest("products").create(product2).get("data").getAsJsonObject().get("id").getAsString();
+
+			if (variant.has("image"))
+			{
+				final File largeImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("large_filename").getAsString().replace("gif", "png"));
+				final String uuidLargeImage = new MoltinRequest("files").file(largeImageFile).get("data").getAsJsonObject().get("id").getAsString();
+
+				final com.moltin.api.v2.relationships.images.Relationship relationshipMainImage = new com.moltin.api.v2.relationships.images.Relationship()
+					.withData(new com.moltin.api.v2.relationships.images.Data().withId(uuidLargeImage).withType("main_image"));
+				@SuppressWarnings("unused")
+				final JsonObject mainImage = new MoltinRequest("products", uuidProduct, "relationships","main-image").create(relationshipMainImage);
+
+
+				final File thumbnailImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("thumbnail_filename").getAsString().replace("gif", "png"));
+				final String uuidThumbnailImage = new MoltinRequest("files").file(thumbnailImageFile).get("data").getAsJsonObject().get("id").getAsString();
+
+				final com.moltin.api.v2.relationships.files.Relationship relationshipFile = new com.moltin.api.v2.relationships.files.Relationship()
+						.withData(Arrays.asList(new com.moltin.api.v2.relationships.files.Datum().withId(uuidThumbnailImage).withType("thumbnail")));
+
+				@SuppressWarnings("unused")
+				final JsonObject thumbnail = new MoltinRequest("products", uuidProduct, "relationships","files").create(relationshipFile);
+
+			}
+
 			product.getAsJsonArray("modifiers").forEach(_modifier -> {
 				final JsonObject modifier = _modifier.getAsJsonObject();
 				final Variation variation = new Variation()
@@ -148,9 +188,7 @@ public class MoltinStore {
 				final String uuidVariation = new MoltinRequest("variations").create(variation).get("data").getAsJsonObject().get("id").getAsString();
 				final com.moltin.api.v2.relationships.variations.Relationship relationship = new com.moltin.api.v2.relationships.variations.Relationship();
 
-
 				modifier.getAsJsonArray("values").forEach(value -> {
-
 					final Option option = new Option()
 							.withData(new com.moltin.api.v2.options.Data()
 									.withName(value.getAsString())

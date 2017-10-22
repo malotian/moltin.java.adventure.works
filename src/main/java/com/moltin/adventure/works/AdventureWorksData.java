@@ -1,6 +1,8 @@
 package com.moltin.adventure.works;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -9,12 +11,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +101,9 @@ public class AdventureWorksData {
 		FileUtils.write(new File(directory.toString(), fileNameOnly + ".clean." + fileExtensionOnly), textFromFile, encoding);
 	}
 
-	void dump() throws JsonProcessingException, IOException {
+	public void dump() throws JsonProcessingException, IOException {
 
-		final File dumpDirectory = new File(directory.toString(), "processed");
+		final File dumpDirectory = new File(directory.toString(), "dump");
 
 		FileUtils.deleteDirectory(dumpDirectory);
 		FileUtils.forceMkdir(dumpDirectory);
@@ -125,6 +131,10 @@ public class AdventureWorksData {
 
 	public JsonArray getDescriptionsLink() {
 		return descriptionsLink;
+	}
+
+	public Path getDirectory() {
+		return directory;
 	}
 
 	public JsonArray getImages() {
@@ -187,6 +197,30 @@ public class AdventureWorksData {
 		setOrderDetail(read("SalesOrderDetail.csv",
 				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid", "date"),
 				StandardCharsets.US_ASCII));
+
+		final File imagesDirectory = new File(directory.toString(), "images");
+		FileUtils.deleteDirectory(imagesDirectory);
+		FileUtils.forceMkdir(imagesDirectory);
+
+		images.forEach(_i -> {
+			final JsonObject i = _i.getAsJsonObject();
+			final String thumbnail = i.get("thumbnail").getAsString();
+			final String thumbnailFilename = i.get("thumbnail_filename").getAsString();
+			final String large = i.get("large").getAsString();
+			final String largeFilename = i.get("large_filename").getAsString();
+			LOGGER.info("Processing {} and {}", thumbnailFilename, largeFilename);
+			try {
+
+				ImageIO.write(ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseHexBinary(thumbnail))), "png",
+						new FileOutputStream(new File(imagesDirectory, thumbnailFilename.replaceAll("gif", "png"))));
+
+				ImageIO.write(ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseHexBinary(large))), "png",
+						new FileOutputStream(new File(imagesDirectory, largeFilename.replaceAll("gif", "png"))));
+
+			} catch (final IOException e) {
+				LOGGER.error("error, processing {} and {}, exception: {}", thumbnailFilename, largeFilename, ExceptionUtils.getStackTrace(e));
+			}
+		});
 
 		variants.forEach(_v -> {
 			final JsonObject v = _v.getAsJsonObject();

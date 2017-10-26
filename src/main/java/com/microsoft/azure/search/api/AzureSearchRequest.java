@@ -18,12 +18,12 @@ import com.rest.RestRequest;
 public class AzureSearchRequest extends RestRequest {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(AzureSearchRequest.class);
-	String url = StringUtils.EMPTY;
-
-	private String searchAppName = StringUtils.EMPTY;
 	private String apiKey = StringUtils.EMPTY;
 
-	public AzureSearchRequest(String... urlPath) {
+	private String searchAppName = StringUtils.EMPTY;
+	String url = StringUtils.EMPTY;
+
+	public AzureSearchRequest(final String... urlPath) {
 		final Configuration configuration = Context.get(Configuration.class);
 		setSearchAppName(configuration.getAzureSearchAppName());
 		setApiKey(configuration.getAzureSearchApiKey());
@@ -36,7 +36,7 @@ public class AzureSearchRequest extends RestRequest {
 				.header("api-key", getApiKey());
 	}
 
-	public JsonObject create(Entity<?> entity) {
+	public JsonObject create(final Entity<?> entity) {
 		try {
 			final Response response = azure().post(entity);
 
@@ -52,11 +52,11 @@ public class AzureSearchRequest extends RestRequest {
 	}
 
 	@Loggable(Loggable.DEBUG)
-	public JsonObject create(Object object) {
+	public JsonObject create(final Object object) {
 		return create(Entity.json(object));
 	}
 
-	public JsonObject createOrUpdate(Entity<?> entity) {
+	public JsonObject createOrUpdate(final Entity<?> entity) {
 		try {
 			final Response response = azure().put(entity);
 
@@ -72,7 +72,7 @@ public class AzureSearchRequest extends RestRequest {
 	}
 
 	@Loggable(Loggable.DEBUG)
-	public JsonObject createOrUpdate(Object object) {
+	public JsonObject createOrUpdate(final Object object) {
 		return createOrUpdate(Entity.json(object));
 	}
 
@@ -118,11 +118,11 @@ public class AzureSearchRequest extends RestRequest {
 		return searchAppName;
 	}
 
-	private void setApiKey(String apiKey) {
+	private void setApiKey(final String apiKey) {
 		this.apiKey = apiKey;
 	}
 
-	private void setSearchAppName(String searchAppName) {
+	private void setSearchAppName(final String searchAppName) {
 		this.searchAppName = searchAppName;
 	}
 }

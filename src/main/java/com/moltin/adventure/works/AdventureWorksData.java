@@ -35,16 +35,16 @@ public class AdventureWorksData {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdventureWorksData.class);
 
 	private JsonArray categories = new JsonArray();
-	private JsonArray products = new JsonArray();
 	private JsonArray descriptions = new JsonArray();
+	private JsonArray descriptionsLink = new JsonArray();
+	private Path directory = Paths.get(".");
 	private JsonArray images = new JsonArray();
 	private JsonArray imagesLink = new JsonArray();
-	private JsonArray variants = new JsonArray();
-	private JsonArray orderHeader = new JsonArray();
 	private JsonArray orderDetail = new JsonArray();
-	private JsonArray descriptionsLink = new JsonArray();
+	private JsonArray orderHeader = new JsonArray();
+	private JsonArray products = new JsonArray();
 
-	private Path directory = Paths.get(".");
+	private JsonArray variants = new JsonArray();
 
 	public AdventureWorksData(final Path directory) {
 		setDirectory(directory);
@@ -328,7 +328,7 @@ public class AdventureWorksData {
 		return read(fileName, format, encoding, false);
 	}
 
-	public JsonArray read(final String fileName, final CSVFormat format, final Charset encoding, boolean strip) throws IOException {
+	public JsonArray read(final String fileName, final CSVFormat format, final Charset encoding, final boolean strip) throws IOException {
 		final JsonArray ja = new JsonArray();
 		final List<CSVRecord> records = _read(fileName, format, encoding);
 		records.forEach(r -> {

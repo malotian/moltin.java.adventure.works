@@ -56,7 +56,6 @@ public class Application {
 
 			ass.deleteCategoriesIndex();
 			ass.deleteProductsIndex();
-			ass.deleteVariantsIndex();
 
 			Thread.sleep(5000);
 
@@ -64,10 +63,7 @@ public class Application {
 			ass.populateCategoriesIndex(application.getMoltinStore().getCategories());
 
 			ass.defineProductsIndex();
-			ass.populateProductsIndex(application.getMoltinStore().getProducts());
-
-			// ass.defineVariantsIndex();
-			// ass.populateVariantsIndex(application.getMoltinStore().getVariants());
+			ass.populateProductsIndex(application.getMoltinStore().getProducts(), application.getMoltinStore().getCategories(), application.getMoltinStore().getFiles());
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));
@@ -113,11 +109,11 @@ public class Application {
 		return this;
 	}
 
-	public void setAdventureWorksData(AdventureWorksData adventureWorksData) {
+	public void setAdventureWorksData(final AdventureWorksData adventureWorksData) {
 		this.adventureWorksData = adventureWorksData;
 	}
 
-	public void setMoltinStore(MoltinStore moltinStore) {
+	public void setMoltinStore(final MoltinStore moltinStore) {
 		this.moltinStore = moltinStore;
 	}
 

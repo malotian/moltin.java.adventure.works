@@ -3,7 +3,9 @@ package com.moltin.adventure.works;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
@@ -35,7 +37,6 @@ public class MoltinStore {
 	public JsonObject getProducts() {
 		return new MoltinRequest("products").get();
 	}
-
 
 	public void deleteCategories() {
 		LOGGER.debug("deleting categories");
@@ -128,12 +129,15 @@ public class MoltinStore {
 			}
 
 			final JsonObject variant = product.getAsJsonArray("variants").get(0).getAsJsonObject();
+			JsonArray categories = new JsonArray();
 			categoriesList.getAsJsonArray("data").forEach(_category -> {
 				final JsonObject category = _category.getAsJsonObject();
 				if (variant.getAsJsonObject("category").get("name").equals(category.get("name"))) {
-					variant.getAsJsonObject("category").add("uuid", category.get("id"));
+					categories.add(category.get("id"));
 				}
 			});
+			
+			//variant.getAsJsonObject("categories").add("uuid", categories);
 
 
 			final Product product2 = new Product().withData(new com.moltin.api.v2.products.Data()
@@ -163,10 +167,14 @@ public class MoltinStore {
 					.withSlug(product.get("name").getAsString().toLowerCase().replace(" ", "-"))
 					.withSku(variant.get("sku").getAsString().substring(0, 7))
 					.withType("product"));
+			
 
 			final String uuidProduct = new MoltinRequest("products").create(product2).get("data").getAsJsonObject().get("id").getAsString();
-			final com.moltin.api.v2.products.relationships.categories.Relationship relationshipCategory = new com.moltin.api.v2.products.relationships.categories.Relationship()
-					.withData(new com.moltin.api.v2.products.relationships.categories.Data().withId(uuidProduct).withType("category"));
+			final com.moltin.api.v2.products.relationships.categories.Relationship relationshipCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
+			categories.forEach(c -> {
+				relationshipCategory.getData().add(new com.moltin.api.v2.products.relationships.categories.Datum().withId(c.getAsString()).withType("category"));
+			});
+			
 			new MoltinRequest("products", uuidProduct, "relationships","categories").create(relationshipCategory);
 
 			if (variant.has("image"))

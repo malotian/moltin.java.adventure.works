@@ -24,11 +24,11 @@ public class MoltinRequest extends RestRequest {
 
 	String url = StringUtils.EMPTY;
 
-	public MoltinRequest(String... urlPath) {
+	public MoltinRequest(final String... urlPath) {
 		url = "https://api.moltin.com/v2/" + StringUtils.join(urlPath, '/');
 	}
 
-	public JsonObject create(Entity<?> entity) {
+	public JsonObject create(final Entity<?> entity) {
 		try {
 			final Response response = moltin().post(entity);
 
@@ -44,7 +44,7 @@ public class MoltinRequest extends RestRequest {
 	}
 
 	@Loggable(Loggable.DEBUG)
-	public JsonObject create(Object object) {
+	public JsonObject create(final Object object) {
 		return create(Entity.json(object));
 	}
 
@@ -66,7 +66,7 @@ public class MoltinRequest extends RestRequest {
 		return null;
 	}
 
-	public JsonObject file(File file) {
+	public JsonObject file(final File file) {
 		@SuppressWarnings("resource")
 		final MultiPart multipart = new FormDataMultiPart().field("public", "true").bodyPart(new FileDataBodyPart("file", file));
 		return create(Entity.entity(multipart, multipart.getMediaType()));

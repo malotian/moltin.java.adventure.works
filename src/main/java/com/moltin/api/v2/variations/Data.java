@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "type", "name" })
 public class Data {
 
-	@JsonProperty("type")
-	private String type;
 	@JsonProperty("name")
 	private String name;
+	@JsonProperty("type")
+	private String type;
 
 	/**
 	 * No args constructor for use in serialization
@@ -30,14 +30,14 @@ public class Data {
 	 * @param name
 	 * @param type
 	 */
-	public Data(String type, String name) {
+	public Data(final String type, final String name) {
 		super();
 		this.type = type;
 		this.name = name;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -64,12 +64,12 @@ public class Data {
 	}
 
 	@JsonProperty("name")
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	@JsonProperty("type")
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -78,12 +78,12 @@ public class Data {
 		return new ToStringBuilder(this).append("type", type).append("name", name).toString();
 	}
 
-	public Data withName(String name) {
+	public Data withName(final String name) {
 		this.name = name;
 		return this;
 	}
 
-	public Data withType(String type) {
+	public Data withType(final String type) {
 		this.type = type;
 		return this;
 	}

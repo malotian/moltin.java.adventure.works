@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "type", "id" })
 public class Datum {
 
-	@JsonProperty("type")
-	private String type;
 	@JsonProperty("id")
 	private String id;
+	@JsonProperty("type")
+	private String type;
 
 	/**
 	 * No args constructor for use in serialization
@@ -30,14 +30,14 @@ public class Datum {
 	 * @param id
 	 * @param type
 	 */
-	public Datum(String type, String id) {
+	public Datum(final String type, final String id) {
 		super();
 		this.type = type;
 		this.id = id;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -64,12 +64,12 @@ public class Datum {
 	}
 
 	@JsonProperty("id")
-	public void setId(String id) {
+	public void setId(final String id) {
 		this.id = id;
 	}
 
 	@JsonProperty("type")
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -78,12 +78,12 @@ public class Datum {
 		return new ToStringBuilder(this).append("type", type).append("id", id).toString();
 	}
 
-	public Datum withId(String id) {
+	public Datum withId(final String id) {
 		this.id = id;
 		return this;
 	}
 
-	public Datum withType(String type) {
+	public Datum withType(final String type) {
 		this.type = type;
 		return this;
 	}

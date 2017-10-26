@@ -27,13 +27,13 @@ public class Relationship {
 	 *
 	 * @param data
 	 */
-	public Relationship(Data data) {
+	public Relationship(final Data data) {
 		super();
 		this.data = data;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -55,7 +55,7 @@ public class Relationship {
 	}
 
 	@JsonProperty("data")
-	public void setData(Data data) {
+	public void setData(final Data data) {
 		this.data = data;
 	}
 
@@ -64,7 +64,7 @@ public class Relationship {
 		return new ToStringBuilder(this).append("data", data).toString();
 	}
 
-	public Relationship withData(Data data) {
+	public Relationship withData(final Data data) {
 		this.data = data;
 		return this;
 	}

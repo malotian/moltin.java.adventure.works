@@ -33,7 +33,7 @@ public class Price {
 	 * @param includesTax
 	 * @param currency
 	 */
-	public Price(int amount, String currency, boolean includesTax) {
+	public Price(final int amount, final String currency, final boolean includesTax) {
 		super();
 		this.amount = amount;
 		this.currency = currency;
@@ -41,7 +41,7 @@ public class Price {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -73,17 +73,17 @@ public class Price {
 	}
 
 	@JsonProperty("amount")
-	public void setAmount(int amount) {
+	public void setAmount(final int amount) {
 		this.amount = amount;
 	}
 
 	@JsonProperty("currency")
-	public void setCurrency(String currency) {
+	public void setCurrency(final String currency) {
 		this.currency = currency;
 	}
 
 	@JsonProperty("includes_tax")
-	public void setIncludesTax(boolean includesTax) {
+	public void setIncludesTax(final boolean includesTax) {
 		this.includesTax = includesTax;
 	}
 
@@ -92,17 +92,17 @@ public class Price {
 		return new ToStringBuilder(this).append("amount", amount).append("currency", currency).append("includesTax", includesTax).toString();
 	}
 
-	public Price withAmount(int amount) {
+	public Price withAmount(final int amount) {
 		this.amount = amount;
 		return this;
 	}
 
-	public Price withCurrency(String currency) {
+	public Price withCurrency(final String currency) {
 		this.currency = currency;
 		return this;
 	}
 
-	public Price withIncludesTax(boolean includesTax) {
+	public Price withIncludesTax(final boolean includesTax) {
 		this.includesTax = includesTax;
 		return this;
 	}

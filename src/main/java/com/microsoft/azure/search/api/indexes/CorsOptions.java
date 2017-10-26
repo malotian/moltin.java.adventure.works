@@ -25,7 +25,7 @@ public class CorsOptions {
 	private int maxAgeInSeconds;
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -52,12 +52,12 @@ public class CorsOptions {
 	}
 
 	@JsonProperty("allowedOrigins")
-	public void setAllowedOrigins(List<String> allowedOrigins) {
+	public void setAllowedOrigins(final List<String> allowedOrigins) {
 		this.allowedOrigins = allowedOrigins;
 	}
 
 	@JsonProperty("maxAgeInSeconds")
-	public void setMaxAgeInSeconds(int maxAgeInSeconds) {
+	public void setMaxAgeInSeconds(final int maxAgeInSeconds) {
 		this.maxAgeInSeconds = maxAgeInSeconds;
 	}
 
@@ -66,12 +66,12 @@ public class CorsOptions {
 		return new ToStringBuilder(this).append("allowedOrigins", allowedOrigins).append("maxAgeInSeconds", maxAgeInSeconds).toString();
 	}
 
-	public CorsOptions withAllowedOrigins(List<String> allowedOrigins) {
+	public CorsOptions withAllowedOrigins(final List<String> allowedOrigins) {
 		this.allowedOrigins = allowedOrigins;
 		return this;
 	}
 
-	public CorsOptions withMaxAgeInSeconds(int maxAgeInSeconds) {
+	public CorsOptions withMaxAgeInSeconds(final int maxAgeInSeconds) {
 		this.maxAgeInSeconds = maxAgeInSeconds;
 		return this;
 	}

@@ -12,14 +12,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "expires", "identifier", "expires_in", "access_token", "token_type" })
 public class AuthenticateResponse {
 
-	@JsonProperty("expires")
-	private int expires;
-	@JsonProperty("identifier")
-	private String identifier;
-	@JsonProperty("expires_in")
-	private int expiresIn;
 	@JsonProperty("access_token")
 	private String accessToken;
+	@JsonProperty("expires")
+	private int expires;
+	@JsonProperty("expires_in")
+	private int expiresIn;
+	@JsonProperty("identifier")
+	private String identifier;
 	@JsonProperty("token_type")
 	private String tokenType;
 

@@ -43,7 +43,7 @@ public class RestRequest {
 		return new LoggingFeature(jerseyLogger, Verbosity.PAYLOAD_TEXT);
 	}
 
-	public static JsonObject toJsonObject(String input) {
+	public static JsonObject toJsonObject(final String input) {
 		return parser.parse(input).getAsJsonObject();
 	}
 

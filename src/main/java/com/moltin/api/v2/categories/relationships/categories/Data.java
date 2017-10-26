@@ -27,13 +27,13 @@ public class Data {
 	 *
 	 * @param parent
 	 */
-	public Data(Parent parent) {
+	public Data(final Parent parent) {
 		super();
 		this.parent = parent;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -55,7 +55,7 @@ public class Data {
 	}
 
 	@JsonProperty("parent")
-	public void setParent(Parent parent) {
+	public void setParent(final Parent parent) {
 		this.parent = parent;
 	}
 
@@ -64,7 +64,7 @@ public class Data {
 		return new ToStringBuilder(this).append("parent", parent).toString();
 	}
 
-	public Data withParent(Parent parent) {
+	public Data withParent(final Parent parent) {
 		this.parent = parent;
 		return this;
 	}

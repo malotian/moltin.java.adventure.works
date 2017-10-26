@@ -13,27 +13,27 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "name", "type", "searchable", "filterable", "retrievable", "sortable", "facetable", "key", "analyzer" })
 public class Field {
 
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("type")
-	private String type;
-	@JsonProperty("searchable")
-	private boolean searchable;
-	@JsonProperty("filterable")
-	private boolean filterable;
-	@JsonProperty("retrievable")
-	private boolean retrievable;
-	@JsonProperty("sortable")
-	private boolean sortable;
-	@JsonProperty("facetable")
-	private boolean facetable;
-	@JsonProperty("key")
-	private boolean key;
 	@JsonProperty("analyzer")
 	private Object analyzer;
+	@JsonProperty("facetable")
+	private boolean facetable;
+	@JsonProperty("filterable")
+	private boolean filterable;
+	@JsonProperty("key")
+	private boolean key;
+	@JsonProperty("name")
+	private String name;
+	@JsonProperty("retrievable")
+	private boolean retrievable;
+	@JsonProperty("searchable")
+	private boolean searchable;
+	@JsonProperty("sortable")
+	private boolean sortable;
+	@JsonProperty("type")
+	private String type;
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -97,47 +97,47 @@ public class Field {
 	}
 
 	@JsonProperty("analyzer")
-	public void setAnalyzer(Object analyzer) {
+	public void setAnalyzer(final Object analyzer) {
 		this.analyzer = analyzer;
 	}
 
 	@JsonProperty("facetable")
-	public void setFacetable(boolean facetable) {
+	public void setFacetable(final boolean facetable) {
 		this.facetable = facetable;
 	}
 
 	@JsonProperty("filterable")
-	public void setFilterable(boolean filterable) {
+	public void setFilterable(final boolean filterable) {
 		this.filterable = filterable;
 	}
 
 	@JsonProperty("key")
-	public void setKey(boolean key) {
+	public void setKey(final boolean key) {
 		this.key = key;
 	}
 
 	@JsonProperty("name")
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	@JsonProperty("retrievable")
-	public void setRetrievable(boolean retrievable) {
+	public void setRetrievable(final boolean retrievable) {
 		this.retrievable = retrievable;
 	}
 
 	@JsonProperty("searchable")
-	public void setSearchable(boolean searchable) {
+	public void setSearchable(final boolean searchable) {
 		this.searchable = searchable;
 	}
 
 	@JsonProperty("sortable")
-	public void setSortable(boolean sortable) {
+	public void setSortable(final boolean sortable) {
 		this.sortable = sortable;
 	}
 
 	@JsonProperty("type")
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -147,47 +147,47 @@ public class Field {
 				.append("retrievable", retrievable).append("sortable", sortable).append("facetable", facetable).append("key", key).append("analyzer", analyzer).toString();
 	}
 
-	public Field withAnalyzer(Object analyzer) {
+	public Field withAnalyzer(final Object analyzer) {
 		this.analyzer = analyzer;
 		return this;
 	}
 
-	public Field withFacetable(boolean facetable) {
+	public Field withFacetable(final boolean facetable) {
 		this.facetable = facetable;
 		return this;
 	}
 
-	public Field withFilterable(boolean filterable) {
+	public Field withFilterable(final boolean filterable) {
 		this.filterable = filterable;
 		return this;
 	}
 
-	public Field withKey(boolean key) {
+	public Field withKey(final boolean key) {
 		this.key = key;
 		return this;
 	}
 
-	public Field withName(String name) {
+	public Field withName(final String name) {
 		this.name = name;
 		return this;
 	}
 
-	public Field withRetrievable(boolean retrievable) {
+	public Field withRetrievable(final boolean retrievable) {
 		this.retrievable = retrievable;
 		return this;
 	}
 
-	public Field withSearchable(boolean searchable) {
+	public Field withSearchable(final boolean searchable) {
 		this.searchable = searchable;
 		return this;
 	}
 
-	public Field withSortable(boolean sortable) {
+	public Field withSortable(final boolean sortable) {
 		this.sortable = sortable;
 		return this;
 	}
 
-	public Field withType(String type) {
+	public Field withType(final String type) {
 		this.type = type;
 		return this;
 	}

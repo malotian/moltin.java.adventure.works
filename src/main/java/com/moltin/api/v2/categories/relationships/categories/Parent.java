@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "type", "id" })
 public class Parent {
 
-	@JsonProperty("type")
-	private String type;
 	@JsonProperty("id")
 	private String id;
+	@JsonProperty("type")
+	private String type;
 
 	/**
 	 * No args constructor for use in serialization
@@ -30,14 +30,14 @@ public class Parent {
 	 * @param id
 	 * @param type
 	 */
-	public Parent(String type, String id) {
+	public Parent(final String type, final String id) {
 		super();
 		this.type = type;
 		this.id = id;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -64,12 +64,12 @@ public class Parent {
 	}
 
 	@JsonProperty("id")
-	public void setId(String id) {
+	public void setId(final String id) {
 		this.id = id;
 	}
 
 	@JsonProperty("type")
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -78,12 +78,12 @@ public class Parent {
 		return new ToStringBuilder(this).append("type", type).append("id", id).toString();
 	}
 
-	public Parent withId(String id) {
+	public Parent withId(final String id) {
 		this.id = id;
 		return this;
 	}
 
-	public Parent withType(String type) {
+	public Parent withType(final String type) {
 		this.type = type;
 		return this;
 	}

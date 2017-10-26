@@ -33,7 +33,7 @@ public class Dimension {
 	 * @param value
 	 * @param measurement
 	 */
-	public Dimension(String measurement, String unit, String value) {
+	public Dimension(final String measurement, final String unit, final String value) {
 		super();
 		this.measurement = measurement;
 		this.unit = unit;
@@ -41,7 +41,7 @@ public class Dimension {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -73,17 +73,17 @@ public class Dimension {
 	}
 
 	@JsonProperty("measurement")
-	public void setMeasurement(String measurement) {
+	public void setMeasurement(final String measurement) {
 		this.measurement = measurement;
 	}
 
 	@JsonProperty("unit")
-	public void setUnit(String unit) {
+	public void setUnit(final String unit) {
 		this.unit = unit;
 	}
 
 	@JsonProperty("value")
-	public void setValue(String value) {
+	public void setValue(final String value) {
 		this.value = value;
 	}
 
@@ -92,17 +92,17 @@ public class Dimension {
 		return new ToStringBuilder(this).append("measurement", measurement).append("unit", unit).append("value", value).toString();
 	}
 
-	public Dimension withMeasurement(String measurement) {
+	public Dimension withMeasurement(final String measurement) {
 		this.measurement = measurement;
 		return this;
 	}
 
-	public Dimension withUnit(String unit) {
+	public Dimension withUnit(final String unit) {
 		this.unit = unit;
 		return this;
 	}
 
-	public Dimension withValue(String value) {
+	public Dimension withValue(final String value) {
 		this.value = value;
 		return this;
 	}

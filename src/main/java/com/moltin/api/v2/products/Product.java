@@ -27,13 +27,13 @@ public class Product {
 	 *
 	 * @param data
 	 */
-	public Product(Data data) {
+	public Product(final Data data) {
 		super();
 		this.data = data;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -55,7 +55,7 @@ public class Product {
 	}
 
 	@JsonProperty("data")
-	public void setData(Data data) {
+	public void setData(final Data data) {
 		this.data = data;
 	}
 
@@ -64,7 +64,7 @@ public class Product {
 		return new ToStringBuilder(this).append("data", data).toString();
 	}
 
-	public Product withData(Data data) {
+	public Product withData(final Data data) {
 		this.data = data;
 		return this;
 	}

@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "type", "modifier_type", "value" })
 public class Data {
 
-	@JsonProperty("type")
-	private String type;
 	@JsonProperty("modifier_type")
 	private String modifierType;
+	@JsonProperty("type")
+	private String type;
 	@JsonProperty("value")
 	private String value;
 
@@ -33,7 +33,7 @@ public class Data {
 	 * @param value
 	 * @param type
 	 */
-	public Data(String type, String modifierType, String value) {
+	public Data(final String type, final String modifierType, final String value) {
 		super();
 		this.type = type;
 		this.modifierType = modifierType;
@@ -41,7 +41,7 @@ public class Data {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -73,17 +73,17 @@ public class Data {
 	}
 
 	@JsonProperty("modifier_type")
-	public void setModifierType(String modifierType) {
+	public void setModifierType(final String modifierType) {
 		this.modifierType = modifierType;
 	}
 
 	@JsonProperty("type")
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
 	@JsonProperty("value")
-	public void setValue(String value) {
+	public void setValue(final String value) {
 		this.value = value;
 	}
 
@@ -92,17 +92,17 @@ public class Data {
 		return new ToStringBuilder(this).append("type", type).append("modifierType", modifierType).append("value", value).toString();
 	}
 
-	public Data withModifierType(String modifierType) {
+	public Data withModifierType(final String modifierType) {
 		this.modifierType = modifierType;
 		return this;
 	}
 
-	public Data withType(String type) {
+	public Data withType(final String type) {
 		this.type = type;
 		return this;
 	}
 
-	public Data withValue(String value) {
+	public Data withValue(final String value) {
 		this.value = value;
 		return this;
 	}

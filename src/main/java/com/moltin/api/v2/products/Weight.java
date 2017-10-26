@@ -30,14 +30,14 @@ public class Weight {
 	 * @param unit
 	 * @param value
 	 */
-	public Weight(String unit, String value) {
+	public Weight(final String unit, final String value) {
 		super();
 		this.unit = unit;
 		this.value = value;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -64,12 +64,12 @@ public class Weight {
 	}
 
 	@JsonProperty("unit")
-	public void setUnit(String unit) {
+	public void setUnit(final String unit) {
 		this.unit = unit;
 	}
 
 	@JsonProperty("value")
-	public void setValue(String value) {
+	public void setValue(final String value) {
 		this.value = value;
 	}
 
@@ -78,12 +78,12 @@ public class Weight {
 		return new ToStringBuilder(this).append("unit", unit).append("value", value).toString();
 	}
 
-	public Weight withUnit(String unit) {
+	public Weight withUnit(final String unit) {
 		this.unit = unit;
 		return this;
 	}
 
-	public Weight withValue(String value) {
+	public Weight withValue(final String value) {
 		this.value = value;
 		return this;
 	}

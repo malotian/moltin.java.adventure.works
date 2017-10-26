@@ -30,14 +30,14 @@ public class File {
 	 * @param _public
 	 * @param file
 	 */
-	public File(boolean _public, Object file) {
+	public File(final boolean _public, final Object file) {
 		super();
 		this._public = _public;
 		this.file = file;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -64,12 +64,12 @@ public class File {
 	}
 
 	@JsonProperty("file")
-	public void setFile(Object file) {
+	public void setFile(final Object file) {
 		this.file = file;
 	}
 
 	@JsonProperty("public")
-	public void setPublic(boolean _public) {
+	public void setPublic(final boolean _public) {
 		this._public = _public;
 	}
 
@@ -78,12 +78,12 @@ public class File {
 		return new ToStringBuilder(this).append("_public", _public).append("file", file).toString();
 	}
 
-	public File withFile(Object file) {
+	public File withFile(final Object file) {
 		this.file = file;
 		return this;
 	}
 
-	public File withPublic(boolean _public) {
+	public File withPublic(final boolean _public) {
 		this._public = _public;
 		return this;
 	}

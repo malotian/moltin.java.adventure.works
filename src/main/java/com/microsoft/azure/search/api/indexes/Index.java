@@ -18,25 +18,25 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "name", "fields", "scoringProfiles", "defaultScoringProfile", "corsOptions", "suggesters" })
 public class Index {
 
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("fields")
-	@Valid
-	private List<Field> fields = new ArrayList<>();
-	@JsonProperty("scoringProfiles")
-	@Valid
-	private List<Object> scoringProfiles = new ArrayList<>();
-	@JsonProperty("defaultScoringProfile")
-	private String defaultScoringProfile;
 	@JsonProperty("corsOptions")
 	@Valid
 	private CorsOptions corsOptions;
+	@JsonProperty("defaultScoringProfile")
+	private String defaultScoringProfile;
+	@JsonProperty("fields")
+	@Valid
+	private List<Field> fields = new ArrayList<>();
+	@JsonProperty("name")
+	private String name;
+	@JsonProperty("scoringProfiles")
+	@Valid
+	private List<Object> scoringProfiles = new ArrayList<>();
 	@JsonProperty("suggesters")
 	@Valid
 	private List<Object> suggesters = new ArrayList<>();
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -84,32 +84,32 @@ public class Index {
 	}
 
 	@JsonProperty("corsOptions")
-	public void setCorsOptions(CorsOptions corsOptions) {
+	public void setCorsOptions(final CorsOptions corsOptions) {
 		this.corsOptions = corsOptions;
 	}
 
 	@JsonProperty("defaultScoringProfile")
-	public void setDefaultScoringProfile(String defaultScoringProfile) {
+	public void setDefaultScoringProfile(final String defaultScoringProfile) {
 		this.defaultScoringProfile = defaultScoringProfile;
 	}
 
 	@JsonProperty("fields")
-	public void setFields(List<Field> fields) {
+	public void setFields(final List<Field> fields) {
 		this.fields = fields;
 	}
 
 	@JsonProperty("name")
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	@JsonProperty("scoringProfiles")
-	public void setScoringProfiles(List<Object> scoringProfiles) {
+	public void setScoringProfiles(final List<Object> scoringProfiles) {
 		this.scoringProfiles = scoringProfiles;
 	}
 
 	@JsonProperty("suggesters")
-	public void setSuggesters(List<Object> suggesters) {
+	public void setSuggesters(final List<Object> suggesters) {
 		this.suggesters = suggesters;
 	}
 
@@ -119,32 +119,32 @@ public class Index {
 				.append("defaultScoringProfile", defaultScoringProfile).append("corsOptions", corsOptions).append("suggesters", suggesters).toString();
 	}
 
-	public Index withCorsOptions(CorsOptions corsOptions) {
+	public Index withCorsOptions(final CorsOptions corsOptions) {
 		this.corsOptions = corsOptions;
 		return this;
 	}
 
-	public Index withDefaultScoringProfile(String defaultScoringProfile) {
+	public Index withDefaultScoringProfile(final String defaultScoringProfile) {
 		this.defaultScoringProfile = defaultScoringProfile;
 		return this;
 	}
 
-	public Index withFields(List<Field> fields) {
+	public Index withFields(final List<Field> fields) {
 		this.fields = fields;
 		return this;
 	}
 
-	public Index withName(String name) {
+	public Index withName(final String name) {
 		this.name = name;
 		return this;
 	}
 
-	public Index withScoringProfiles(List<Object> scoringProfiles) {
+	public Index withScoringProfiles(final List<Object> scoringProfiles) {
 		this.scoringProfiles = scoringProfiles;
 		return this;
 	}
 
-	public Index withSuggesters(List<Object> suggesters) {
+	public Index withSuggesters(final List<Object> suggesters) {
 		this.suggesters = suggesters;
 		return this;
 	}

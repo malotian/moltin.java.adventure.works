@@ -27,13 +27,13 @@ public class Variation {
 	 *
 	 * @param data
 	 */
-	public Variation(Data data) {
+	public Variation(final Data data) {
 		super();
 		this.data = data;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -55,7 +55,7 @@ public class Variation {
 	}
 
 	@JsonProperty("data")
-	public void setData(Data data) {
+	public void setData(final Data data) {
 		this.data = data;
 	}
 
@@ -64,7 +64,7 @@ public class Variation {
 		return new ToStringBuilder(this).append("data", data).toString();
 	}
 
-	public Variation withData(Data data) {
+	public Variation withData(final Data data) {
 		this.data = data;
 		return this;
 	}

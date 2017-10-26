@@ -16,26 +16,26 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "type", "name", "slug", "sku", "description", "manage_stock", "price", "status", "commodity_type", "dimensions", "weight" })
 public class Data {
 
-	@JsonProperty("type")
-	private String type;
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("slug")
-	private String slug;
-	@JsonProperty("sku")
-	private String sku;
-	@JsonProperty("description")
-	private String description;
-	@JsonProperty("manage_stock")
-	private boolean manageStock;
-	@JsonProperty("price")
-	private List<Price> price = new ArrayList<>();
-	@JsonProperty("status")
-	private String status;
 	@JsonProperty("commodity_type")
 	private String commodityType;
+	@JsonProperty("description")
+	private String description;
 	@JsonProperty("dimensions")
 	private List<Dimension> dimensions = new ArrayList<>();
+	@JsonProperty("manage_stock")
+	private boolean manageStock;
+	@JsonProperty("name")
+	private String name;
+	@JsonProperty("price")
+	private List<Price> price = new ArrayList<>();
+	@JsonProperty("sku")
+	private String sku;
+	@JsonProperty("slug")
+	private String slug;
+	@JsonProperty("status")
+	private String status;
+	@JsonProperty("type")
+	private String type;
 	@JsonProperty("weight")
 	private Weight weight;
 
@@ -60,8 +60,8 @@ public class Data {
 	 * @param sku
 	 * @param type
 	 */
-	public Data(String type, String name, String slug, String sku, String description, boolean manageStock, List<Price> price, String status, String commodityType,
-			List<Dimension> dimensions, Weight weight) {
+	public Data(final String type, final String name, final String slug, final String sku, final String description, final boolean manageStock, final List<Price> price,
+			final String status, final String commodityType, final List<Dimension> dimensions, final Weight weight) {
 		super();
 		this.type = type;
 		this.name = name;
@@ -77,7 +77,7 @@ public class Data {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -152,57 +152,57 @@ public class Data {
 	}
 
 	@JsonProperty("commodity_type")
-	public void setCommodityType(String commodityType) {
+	public void setCommodityType(final String commodityType) {
 		this.commodityType = commodityType;
 	}
 
 	@JsonProperty("description")
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		this.description = description;
 	}
 
 	@JsonProperty("dimensions")
-	public void setDimensions(List<Dimension> dimensions) {
+	public void setDimensions(final List<Dimension> dimensions) {
 		this.dimensions = dimensions;
 	}
 
 	@JsonProperty("manage_stock")
-	public void setManageStock(boolean manageStock) {
+	public void setManageStock(final boolean manageStock) {
 		this.manageStock = manageStock;
 	}
 
 	@JsonProperty("name")
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	@JsonProperty("price")
-	public void setPrice(List<Price> price) {
+	public void setPrice(final List<Price> price) {
 		this.price = price;
 	}
 
 	@JsonProperty("sku")
-	public void setSku(String sku) {
+	public void setSku(final String sku) {
 		this.sku = sku;
 	}
 
 	@JsonProperty("slug")
-	public void setSlug(String slug) {
+	public void setSlug(final String slug) {
 		this.slug = slug;
 	}
 
 	@JsonProperty("status")
-	public void setStatus(String status) {
+	public void setStatus(final String status) {
 		this.status = status;
 	}
 
 	@JsonProperty("type")
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
 	@JsonProperty("weight")
-	public void setWeight(Weight weight) {
+	public void setWeight(final Weight weight) {
 		this.weight = weight;
 	}
 
@@ -213,57 +213,57 @@ public class Data {
 				.append("weight", weight).toString();
 	}
 
-	public Data withCommodityType(String commodityType) {
+	public Data withCommodityType(final String commodityType) {
 		this.commodityType = commodityType;
 		return this;
 	}
 
-	public Data withDescription(String description) {
+	public Data withDescription(final String description) {
 		this.description = description;
 		return this;
 	}
 
-	public Data withDimensions(List<Dimension> dimensions) {
+	public Data withDimensions(final List<Dimension> dimensions) {
 		this.dimensions = dimensions;
 		return this;
 	}
 
-	public Data withManageStock(boolean manageStock) {
+	public Data withManageStock(final boolean manageStock) {
 		this.manageStock = manageStock;
 		return this;
 	}
 
-	public Data withName(String name) {
+	public Data withName(final String name) {
 		this.name = name;
 		return this;
 	}
 
-	public Data withPrice(List<Price> price) {
+	public Data withPrice(final List<Price> price) {
 		this.price = price;
 		return this;
 	}
 
-	public Data withSku(String sku) {
+	public Data withSku(final String sku) {
 		this.sku = sku;
 		return this;
 	}
 
-	public Data withSlug(String slug) {
+	public Data withSlug(final String slug) {
 		this.slug = slug;
 		return this;
 	}
 
-	public Data withStatus(String status) {
+	public Data withStatus(final String status) {
 		this.status = status;
 		return this;
 	}
 
-	public Data withType(String type) {
+	public Data withType(final String type) {
 		this.type = type;
 		return this;
 	}
 
-	public Data withWeight(Weight weight) {
+	public Data withWeight(final Weight weight) {
 		this.weight = weight;
 		return this;
 	}

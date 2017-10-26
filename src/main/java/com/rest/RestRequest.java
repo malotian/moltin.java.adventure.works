@@ -1,6 +1,6 @@
 /**
  */
-package com.moltin.api;
+package com.rest;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClient;

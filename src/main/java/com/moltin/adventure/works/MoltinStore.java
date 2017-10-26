@@ -28,6 +28,15 @@ public class MoltinStore {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MoltinStore.class);
 
+	public JsonObject getCategories() {
+		return new MoltinRequest("categories").get();
+	}
+
+	public JsonObject getProducts() {
+		return new MoltinRequest("products").get();
+	}
+
+
 	public void deleteCategories() {
 		LOGGER.debug("deleting categories");
 		final JsonObject products = new MoltinRequest("categories").get();

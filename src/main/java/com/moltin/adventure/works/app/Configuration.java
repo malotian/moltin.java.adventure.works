@@ -33,6 +33,14 @@ public class Configuration {
 		return properties.getString("moltin.api.client.secret");
 	}
 
+	public String getAzureSearchAppName() {
+		return properties.getString("azure.serach.app.name");
+	}
+
+	public String getAzureSearchApiKey() {
+		return properties.getString("azure.search.api.key");
+	}
+
 	public Configuration initialize() throws ConfigurationException {
 
 		properties.clear();

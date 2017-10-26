@@ -25,7 +25,7 @@ public class AzureSearchService {
 				.withFields(Arrays.asList(
 						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false).withFacetable(false)
 								.withKey(true).withAnalyzer(null),
-						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(true)
+						new Field().withName("name").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(true)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
@@ -42,7 +42,7 @@ public class AzureSearchService {
 				.withFields(Arrays.asList(
 						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
 								.withKey(true).withAnalyzer(null),
-						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("name").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
@@ -130,7 +130,7 @@ public class AzureSearchService {
 
 			azureCategoryIndex.addProperty("@search.action", "upload");
 			azureCategoryIndex.add("id", moltinCategory.get("id"));
-			azureCategoryIndex.add("title", moltinCategory.get("name"));
+			azureCategoryIndex.add("name", moltinCategory.get("name"));
 			azureCategoryIndex.add("description", moltinCategory.get("description"));
 
 			if (moltinCategory.has("relationships")) {
@@ -182,7 +182,7 @@ public class AzureSearchService {
 
 			azureProductIndex.addProperty("@search.action", "upload");
 			azureProductIndex.add("id", moltinProduct.get("id"));
-			azureProductIndex.add("title", moltinProduct.get("name"));
+			azureProductIndex.add("name", moltinProduct.get("name"));
 			azureProductIndex.add("description", moltinProduct.get("description"));
 			azureProductIndex.add("price", moltinProduct.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
 

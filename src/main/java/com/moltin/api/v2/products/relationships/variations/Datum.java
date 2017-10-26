@@ -1,5 +1,5 @@
 
-package com.moltin.api.v2.relationships.images;
+package com.moltin.api.v2.products.relationships.variations;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "type", "id" })
-public class Data {
+public class Datum {
 
 	@JsonProperty("type")
 	private String type;
@@ -22,7 +22,7 @@ public class Data {
 	 * No args constructor for use in serialization
 	 *
 	 */
-	public Data() {
+	public Datum() {
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class Data {
 	 * @param id
 	 * @param type
 	 */
-	public Data(String type, String id) {
+	public Datum(String type, String id) {
 		super();
 		this.type = type;
 		this.id = id;
@@ -41,10 +41,10 @@ public class Data {
 		if (other == this) {
 			return true;
 		}
-		if (other instanceof Data == false) {
+		if (other instanceof Datum == false) {
 			return false;
 		}
-		final Data rhs = (Data) other;
+		final Datum rhs = (Datum) other;
 		return new EqualsBuilder().append(id, rhs.id).append(type, rhs.type).isEquals();
 	}
 
@@ -78,12 +78,12 @@ public class Data {
 		return new ToStringBuilder(this).append("type", type).append("id", id).toString();
 	}
 
-	public Data withId(String id) {
+	public Datum withId(String id) {
 		this.id = id;
 		return this;
 	}
 
-	public Data withType(String type) {
+	public Datum withType(String type) {
 		this.type = type;
 		return this;
 	}

@@ -15,13 +15,13 @@ import com.moltin.api.v2.AuthenticateRequest;
 import com.moltin.api.v2.MoltinRequest;
 import com.moltin.api.v2.categories.Category;
 import com.moltin.api.v2.categories.Data;
+import com.moltin.api.v2.categories.relationships.categories.Parent;
+import com.moltin.api.v2.categories.relationships.categories.Relationship;
 import com.moltin.api.v2.modifiers.Modifier;
 import com.moltin.api.v2.options.Option;
 import com.moltin.api.v2.products.Price;
 import com.moltin.api.v2.products.Product;
-import com.moltin.api.v2.relationships.categories.Parent;
-import com.moltin.api.v2.relationships.categories.Relationship;
-import com.moltin.api.v2.relationships.variations.Datum;
+import com.moltin.api.v2.products.relationships.variations.Datum;
 import com.moltin.api.v2.variations.Variation;
 
 public class MoltinStore {
@@ -103,7 +103,7 @@ public class MoltinStore {
 
 			//Datum datum = new Datum().withType("category").withId(sc.get("parent").toString());
 			final Relationship relationship = new Relationship()
-					.withData(new com.moltin.api.v2.relationships.categories.Data()
+					.withData(new com.moltin.api.v2.categories.relationships.categories.Data()
 							.withParent(new Parent()
 									.withId(cache.get(sc.get("parent").getAsString()).getAsString())
 									.withType("category")));
@@ -165,14 +165,17 @@ public class MoltinStore {
 					.withType("product"));
 
 			final String uuidProduct = new MoltinRequest("products").create(product2).get("data").getAsJsonObject().get("id").getAsString();
+			final com.moltin.api.v2.products.relationships.categories.Relationship relationshipCategory = new com.moltin.api.v2.products.relationships.categories.Relationship()
+					.withData(new com.moltin.api.v2.products.relationships.categories.Data().withId(uuidProduct).withType("category"));
+			new MoltinRequest("products", uuidProduct, "relationships","categories").create(relationshipCategory);
 
 			if (variant.has("image"))
 			{
 				final File largeImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("large_filename").getAsString().replace("gif", "png"));
 				final String uuidLargeImage = new MoltinRequest("files").file(largeImageFile).get("data").getAsJsonObject().get("id").getAsString();
 
-				final com.moltin.api.v2.relationships.images.Relationship relationshipMainImage = new com.moltin.api.v2.relationships.images.Relationship()
-					.withData(new com.moltin.api.v2.relationships.images.Data().withId(uuidLargeImage).withType("main_image"));
+				final com.moltin.api.v2.products.relationships.images.Relationship relationshipMainImage = new com.moltin.api.v2.products.relationships.images.Relationship()
+					.withData(new com.moltin.api.v2.products.relationships.images.Data().withId(uuidLargeImage).withType("main_image"));
 				@SuppressWarnings("unused")
 				final JsonObject mainImage = new MoltinRequest("products", uuidProduct, "relationships","main-image").create(relationshipMainImage);
 
@@ -180,11 +183,11 @@ public class MoltinStore {
 				final File thumbnailImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("thumbnail_filename").getAsString().replace("gif", "png"));
 				final String uuidThumbnailImage = new MoltinRequest("files").file(thumbnailImageFile).get("data").getAsJsonObject().get("id").getAsString();
 
-				final com.moltin.api.v2.relationships.files.Relationship relationshipFile = new com.moltin.api.v2.relationships.files.Relationship()
-						.withData(Arrays.asList(new com.moltin.api.v2.relationships.files.Datum().withId(uuidThumbnailImage).withType("thumbnail")));
+				final com.moltin.api.v2.products.relationships.files.Relationship relationshipFile = new com.moltin.api.v2.products.relationships.files.Relationship()
+						.withData(Arrays.asList(new com.moltin.api.v2.products.relationships.files.Datum().withId(uuidThumbnailImage).withType("thumbnail")));
 
 				@SuppressWarnings("unused")
-				final JsonObject thumbnail = new MoltinRequest("products", uuidProduct, "relationships","files").create(relationshipFile);
+				final JsonObject thumbnailRelation = new MoltinRequest("products", uuidProduct, "relationships","files").create(relationshipFile);
 
 			}
 
@@ -195,7 +198,7 @@ public class MoltinStore {
 								.withName(modifier.get("title").getAsString())
 								.withType("product-variation"));
 				final String uuidVariation = new MoltinRequest("variations").create(variation).get("data").getAsJsonObject().get("id").getAsString();
-				final com.moltin.api.v2.relationships.variations.Relationship relationship = new com.moltin.api.v2.relationships.variations.Relationship();
+				final com.moltin.api.v2.products.relationships.variations.Relationship relationship = new com.moltin.api.v2.products.relationships.variations.Relationship();
 
 				modifier.getAsJsonArray("values").forEach(value -> {
 					final Option option = new Option()

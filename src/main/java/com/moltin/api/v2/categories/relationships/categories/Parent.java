@@ -1,5 +1,5 @@
 
-package com.moltin.api.v2.relationships.files;
+package com.moltin.api.v2.categories.relationships.categories;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "type", "id" })
-public class Datum {
+public class Parent {
 
 	@JsonProperty("type")
 	private String type;
@@ -22,7 +22,7 @@ public class Datum {
 	 * No args constructor for use in serialization
 	 *
 	 */
-	public Datum() {
+	public Parent() {
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class Datum {
 	 * @param id
 	 * @param type
 	 */
-	public Datum(String type, String id) {
+	public Parent(String type, String id) {
 		super();
 		this.type = type;
 		this.id = id;
@@ -41,10 +41,10 @@ public class Datum {
 		if (other == this) {
 			return true;
 		}
-		if (other instanceof Datum == false) {
+		if (other instanceof Parent == false) {
 			return false;
 		}
-		final Datum rhs = (Datum) other;
+		final Parent rhs = (Parent) other;
 		return new EqualsBuilder().append(id, rhs.id).append(type, rhs.type).isEquals();
 	}
 
@@ -78,12 +78,12 @@ public class Datum {
 		return new ToStringBuilder(this).append("type", type).append("id", id).toString();
 	}
 
-	public Datum withId(String id) {
+	public Parent withId(String id) {
 		this.id = id;
 		return this;
 	}
 
-	public Datum withType(String type) {
+	public Parent withType(String type) {
 		this.type = type;
 		return this;
 	}

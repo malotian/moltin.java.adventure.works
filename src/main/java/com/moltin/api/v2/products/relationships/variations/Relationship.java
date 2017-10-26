@@ -1,5 +1,8 @@
 
-package com.moltin.api.v2.relationships.categories;
+package com.moltin.api.v2.products.relationships.variations;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -14,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class Relationship {
 
 	@JsonProperty("data")
-	private Data data;
+	private List<Datum> data = new ArrayList<>();
 
 	/**
 	 * No args constructor for use in serialization
@@ -27,7 +30,7 @@ public class Relationship {
 	 *
 	 * @param data
 	 */
-	public Relationship(Data data) {
+	public Relationship(List<Datum> data) {
 		super();
 		this.data = data;
 	}
@@ -45,7 +48,7 @@ public class Relationship {
 	}
 
 	@JsonProperty("data")
-	public Data getData() {
+	public List<Datum> getData() {
 		return data;
 	}
 
@@ -55,7 +58,7 @@ public class Relationship {
 	}
 
 	@JsonProperty("data")
-	public void setData(Data data) {
+	public void setData(List<Datum> data) {
 		this.data = data;
 	}
 
@@ -64,7 +67,7 @@ public class Relationship {
 		return new ToStringBuilder(this).append("data", data).toString();
 	}
 
-	public Relationship withData(Data data) {
+	public Relationship withData(List<Datum> data) {
 		this.data = data;
 		return this;
 	}

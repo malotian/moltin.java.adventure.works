@@ -1,5 +1,5 @@
 
-package com.moltin.api.v2.relationships.categories;
+package com.moltin.api.v2.categories.relationships.categories;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

@@ -25,20 +25,20 @@ public class Configuration {
 		return properties.getString("adventure.works.data.location");
 	}
 
-	public String getMoltinApiClientID() {
-		return properties.getString("moltin.api.client.id");
-	}
-
-	public String getMoltinApiClientSecret() {
-		return properties.getString("moltin.api.client.secret");
+	public String getAzureSearchApiKey() {
+		return properties.getString("azure.search.api.key");
 	}
 
 	public String getAzureSearchAppName() {
 		return properties.getString("azure.serach.app.name");
 	}
 
-	public String getAzureSearchApiKey() {
-		return properties.getString("azure.search.api.key");
+	public String getMoltinApiClientID() {
+		return properties.getString("moltin.api.client.id");
+	}
+
+	public String getMoltinApiClientSecret() {
+		return properties.getString("moltin.api.client.secret");
 	}
 
 	public Configuration initialize() throws ConfigurationException {

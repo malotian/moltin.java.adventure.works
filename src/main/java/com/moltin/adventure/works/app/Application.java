@@ -42,33 +42,32 @@ public class Application {
 		try {
 
 			final Application application = new Application();
-			application.initializeX();
+			application.initialize();
 
 			LOGGER.info("moltin.java.adventure.works.home: {}", Util.MOLTIN_JAVA_ADVENTURE_WORKS_HOME);
 
-			AzureSearchService ass = new AzureSearchService();
+			application.getAdventureWorksData().dump();
+			application.getMoltinStore().deleteProducts();
+			application.getMoltinStore().deleteCategories();
+			application.getMoltinStore().deleteFiles();
+			application.getMoltinStore().populate(application.getAdventureWorksData());
+
+			final AzureSearchService ass = new AzureSearchService();
 
 			ass.deleteCategoriesIndex();
 			ass.deleteProductsIndex();
-			;
 			ass.deleteVariantsIndex();
 
 			Thread.sleep(5000);
 
 			ass.defineCategoriesIndex();
-			//ass.populateCategoriesIndex(application.getMoltinStore().getCategories());
+			// ass.populateCategoriesIndex(application.getMoltinStore().getCategories());
 
 			ass.defineProductsIndex();
-			//ass.populateProductsIndex(application.getMoltinStore().getProducts());
+			// ass.populateProductsIndex(application.getMoltinStore().getProducts());
 
 			ass.defineVariantsIndex();
-			//ass.populateVariantsIndex(application.getMoltinStore().getVariants());
-
-			// application.getAdventureWorksData().dump();
-			// application.getMoltinStore().deleteProducts();
-			// application.getMoltinStore().deleteCategories();
-			// application.getMoltinStore().deleteFiles();
-			// application.getMoltinStore().populate(application.getAdventureWorksData());
+			// ass.populateVariantsIndex(application.getMoltinStore().getVariants());
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));
@@ -87,18 +86,6 @@ public class Application {
 		return moltinStore;
 	}
 
-	public Application initializeX() throws ConfigurationException, IOException {
-
-		// do not alter sequence of initializaion
-		final Configuration configuration = new Configuration();
-		Context.put(Configuration.class, configuration.initialize());
-
-		setMoltinStore(new MoltinStore());
-		getMoltinStore().initialize();
-
-		return this;
-	}
-
 	public Application initialize() throws ConfigurationException, IOException {
 
 		// do not alter sequence of initializaion
@@ -110,6 +97,18 @@ public class Application {
 
 		setAdventureWorksData(new AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
 		getAdventureWorksData().initialize();
+
+		return this;
+	}
+
+	public Application initializeX() throws ConfigurationException, IOException {
+
+		// do not alter sequence of initializaion
+		final Configuration configuration = new Configuration();
+		Context.put(Configuration.class, configuration.initialize());
+
+		setMoltinStore(new MoltinStore());
+		getMoltinStore().initialize();
 
 		return this;
 	}

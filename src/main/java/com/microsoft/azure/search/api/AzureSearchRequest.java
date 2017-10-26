@@ -24,7 +24,7 @@ public class AzureSearchRequest extends RestRequest {
 	private String apiKey = StringUtils.EMPTY;
 
 	public AzureSearchRequest(String... urlPath) {
-		Configuration configuration = Context.get(Configuration.class);
+		final Configuration configuration = Context.get(Configuration.class);
 		setSearchAppName(configuration.getAzureSearchAppName());
 		setApiKey(configuration.getAzureSearchApiKey());
 
@@ -34,21 +34,6 @@ public class AzureSearchRequest extends RestRequest {
 	Builder azure() {
 		return client().target(url).request() // $NON-NLS-1$
 				.header("api-key", getApiKey());
-	}
-	
-	public JsonObject createOrUpdate(Entity<?> entity) {
-		try {
-			final Response response = azure().put(entity);
-
-			if (Response.Status.CREATED.getStatusCode() == response.getStatus() || Response.Status.OK.getStatusCode() == response.getStatus()) {
-				return response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
-			}
-			LOGGER.error("failure, entity: {}", response.readEntity(String.class));
-
-		} catch (final Exception e) {
-			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
-		}
-		return null;
 	}
 
 	public JsonObject create(Entity<?> entity) {
@@ -70,7 +55,22 @@ public class AzureSearchRequest extends RestRequest {
 	public JsonObject create(Object object) {
 		return create(Entity.json(object));
 	}
-	
+
+	public JsonObject createOrUpdate(Entity<?> entity) {
+		try {
+			final Response response = azure().put(entity);
+
+			if (Response.Status.CREATED.getStatusCode() == response.getStatus() || Response.Status.OK.getStatusCode() == response.getStatus()) {
+				return response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
+			}
+			LOGGER.error("failure, entity: {}", response.readEntity(String.class));
+
+		} catch (final Exception e) {
+			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
+		}
+		return null;
+	}
+
 	@Loggable(Loggable.DEBUG)
 	public JsonObject createOrUpdate(Object object) {
 		return createOrUpdate(Entity.json(object));
@@ -110,19 +110,19 @@ public class AzureSearchRequest extends RestRequest {
 		return null;
 	}
 
-	private String getSearchAppName() {
-		return searchAppName;
-	}
-
-	private void setSearchAppName(String searchAppName) {
-		this.searchAppName = searchAppName;
-	}
-
 	private String getApiKey() {
 		return apiKey;
 	}
 
+	private String getSearchAppName() {
+		return searchAppName;
+	}
+
 	private void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
+	}
+
+	private void setSearchAppName(String searchAppName) {
+		this.searchAppName = searchAppName;
 	}
 }

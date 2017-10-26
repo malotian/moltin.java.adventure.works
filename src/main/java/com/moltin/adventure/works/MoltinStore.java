@@ -3,9 +3,7 @@ package com.moltin.adventure.works;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
@@ -29,14 +27,6 @@ import com.moltin.api.v2.variations.Variation;
 public class MoltinStore {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MoltinStore.class);
-
-	public JsonObject getCategories() {
-		return new MoltinRequest("categories").get();
-	}
-
-	public JsonObject getProducts() {
-		return new MoltinRequest("products").get();
-	}
 
 	public void deleteCategories() {
 		LOGGER.debug("deleting categories");
@@ -63,6 +53,14 @@ public class MoltinStore {
 			final JsonObject product = _product.getAsJsonObject();
 			new MoltinRequest("products", product.get("id").getAsString()).delete();
 		});
+	}
+
+	public JsonObject getCategories() {
+		return new MoltinRequest("categories").get();
+	}
+
+	public JsonObject getProducts() {
+		return new MoltinRequest("products").get();
 	}
 
 	public MoltinStore initialize() {
@@ -129,14 +127,14 @@ public class MoltinStore {
 			}
 
 			final JsonObject variant = product.getAsJsonArray("variants").get(0).getAsJsonObject();
-			JsonArray categories = new JsonArray();
+			final JsonArray categories = new JsonArray();
 			categoriesList.getAsJsonArray("data").forEach(_category -> {
 				final JsonObject category = _category.getAsJsonObject();
 				if (variant.getAsJsonObject("category").get("name").equals(category.get("name"))) {
 					categories.add(category.get("id"));
 				}
 			});
-			
+
 			//variant.getAsJsonObject("categories").add("uuid", categories);
 
 
@@ -167,14 +165,14 @@ public class MoltinStore {
 					.withSlug(product.get("name").getAsString().toLowerCase().replace(" ", "-"))
 					.withSku(variant.get("sku").getAsString().substring(0, 7))
 					.withType("product"));
-			
+
 
 			final String uuidProduct = new MoltinRequest("products").create(product2).get("data").getAsJsonObject().get("id").getAsString();
 			final com.moltin.api.v2.products.relationships.categories.Relationship relationshipCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
 			categories.forEach(c -> {
 				relationshipCategory.getData().add(new com.moltin.api.v2.products.relationships.categories.Datum().withId(c.getAsString()).withType("category"));
 			});
-			
+
 			new MoltinRequest("products", uuidProduct, "relationships","categories").create(relationshipCategory);
 
 			if (variant.has("image"))
@@ -184,8 +182,7 @@ public class MoltinStore {
 
 				final com.moltin.api.v2.products.relationships.images.Relationship relationshipMainImage = new com.moltin.api.v2.products.relationships.images.Relationship()
 					.withData(new com.moltin.api.v2.products.relationships.images.Data().withId(uuidLargeImage).withType("main_image"));
-				@SuppressWarnings("unused")
-				final JsonObject mainImage = new MoltinRequest("products", uuidProduct, "relationships","main-image").create(relationshipMainImage);
+				new MoltinRequest("products", uuidProduct, "relationships","main-image").create(relationshipMainImage);
 
 
 				final File thumbnailImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("thumbnail_filename").getAsString().replace("gif", "png"));
@@ -194,8 +191,7 @@ public class MoltinStore {
 				final com.moltin.api.v2.products.relationships.files.Relationship relationshipFile = new com.moltin.api.v2.products.relationships.files.Relationship()
 						.withData(Arrays.asList(new com.moltin.api.v2.products.relationships.files.Datum().withId(uuidThumbnailImage).withType("thumbnail")));
 
-				@SuppressWarnings("unused")
-				final JsonObject thumbnailRelation = new MoltinRequest("products", uuidProduct, "relationships","files").create(relationshipFile);
+				new MoltinRequest("products", uuidProduct, "relationships","files").create(relationshipFile);
 
 			}
 
@@ -236,8 +232,7 @@ public class MoltinStore {
 					});
 				});
 
-				@SuppressWarnings("unused")
-				final JsonObject productModifier = new MoltinRequest("products", uuidProduct, "relationships", "variations").create(relationship);
+				new MoltinRequest("products", uuidProduct, "relationships", "variations").create(relationship);
 
 			});
 		});

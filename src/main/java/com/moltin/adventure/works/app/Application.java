@@ -61,12 +61,12 @@ public class Application {
 			Thread.sleep(5000);
 
 			ass.defineCategoriesIndex();
-			// ass.populateCategoriesIndex(application.getMoltinStore().getCategories());
+			ass.populateCategoriesIndex(application.getMoltinStore().getCategories());
 
 			ass.defineProductsIndex();
-			// ass.populateProductsIndex(application.getMoltinStore().getProducts());
+			ass.populateProductsIndex(application.getMoltinStore().getProducts());
 
-			ass.defineVariantsIndex();
+			// ass.defineVariantsIndex();
 			// ass.populateVariantsIndex(application.getMoltinStore().getVariants());
 
 		} catch (final Exception e) {

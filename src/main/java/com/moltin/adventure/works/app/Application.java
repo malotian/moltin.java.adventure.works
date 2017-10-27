@@ -56,14 +56,14 @@ public class Application {
 
 			ass.deleteCategoriesIndex();
 			ass.deleteProductsIndex();
+			ass.deleteVariantsIndex();
 
 			Thread.sleep(5000);
 
 			ass.defineCategoriesIndex();
-			ass.populateCategoriesIndex(application.getMoltinStore().getCategories());
-
 			ass.defineProductsIndex();
-			ass.populateProductsIndex(application.getMoltinStore().getProducts(), application.getMoltinStore().getCategories(), application.getMoltinStore().getFiles());
+			ass.defineVariantsIndex();
+			ass.populateIndexes(application.getMoltinStore().getCategories(), application.getMoltinStore().getProducts(), application.getMoltinStore().getFiles());
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.microsoft.azure.search.api.AzureSearchRequest;
 import com.microsoft.azure.search.api.indexes.CorsOptions;
 import com.microsoft.azure.search.api.indexes.Field;
@@ -25,7 +26,7 @@ public class AzureSearchService {
 				.withFields(Arrays.asList(
 						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false).withFacetable(false)
 								.withKey(true).withAnalyzer(null),
-						new Field().withName("name").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(true)
+						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(true)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
@@ -42,7 +43,7 @@ public class AzureSearchService {
 				.withFields(Arrays.asList(
 						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
 								.withKey(true).withAnalyzer(null),
-						new Field().withName("name").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
@@ -54,12 +55,14 @@ public class AzureSearchService {
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("subcategoryId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null),
-						new Field().withName("variations").withType("Collection(Edm.String)").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("modifiers").withType("Collection(Edm.String)").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null),
 						new Field().withName("color").withType("Collection(Edm.String)").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("size").withType("Collection(Edm.String)").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
+						new Field().withName("sku").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
+								.withKey(false).withAnalyzer("standard.lucene"),
 						new Field().withName("price").withType("Edm.Double").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
 								.withFacetable(true).withKey(false).withAnalyzer(null),
 						new Field().withName("image_domain").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
@@ -113,7 +116,66 @@ public class AzureSearchService {
 		return this;
 	}
 
-	public void populateCategoriesIndex(final JsonObject categories) {
+	public void populateIndexes(final JsonObject categories, final JsonObject products, final JsonObject files) {
+		populateCategoriesIndex(categories);
+		JsonArray productsIndex = populateProductsIndex(categories, products, files);
+		JsonArray variantsIndex = new JsonArray();
+
+		productsIndex.forEach(_p -> {
+			JsonObject p = _p.getAsJsonObject();
+			p.remove("category");
+			p.remove("description");
+			p.remove("category");
+			p.remove("categoryId");
+			p.remove("subcategory");
+			p.remove("subcategoryId");
+			p.remove("subcategoryId");
+			p.remove("color");
+			p.remove("title");
+			p.remove("modifiers");
+			p.remove("size");
+			p.add("productId", p.get("id"));
+			String sku = p.get("sku").getAsString();
+			JsonArray color = p.has("color") ? p.getAsJsonArray("color") : new JsonArray();
+			JsonArray size = p.has("size") ? p.getAsJsonArray("size") : new JsonArray();
+			JsonObject v = p.deepCopy();
+
+			if (color.size() > 0) {
+				color.forEach(c -> {
+					v.add("color", c);
+					if (v.has("size")) {
+						size.forEach(s -> {
+							v.add("size", s);
+							variantsIndex.add(v.deepCopy());
+						});
+					} else {
+						variantsIndex.add(v.deepCopy());
+					}
+				});
+			} else if (size.size() > 0) {
+				size.forEach(s -> {
+					v.add("size", s);
+					if (v.has("color")) {
+						color.forEach(c -> {
+							v.add("color", c);
+							variantsIndex.add(v.deepCopy());
+						});
+					} else {
+						variantsIndex.add(v.deepCopy());
+					}
+				});
+			} else {
+				variantsIndex.add(v.deepCopy());
+			}
+		});
+
+		final JsonObject body = new JsonObject();
+		body.add("value", variantsIndex);
+		new AzureSearchRequest("indexes", "variants", "docs", "index").create(body.toString());
+
+	}
+
+	public JsonArray populateCategoriesIndex(final JsonObject categories) {
 
 		final JsonObject cache = new JsonObject();
 		categories.getAsJsonArray("data").forEach(c -> {
@@ -130,7 +192,7 @@ public class AzureSearchService {
 
 			azureCategoryIndex.addProperty("@search.action", "upload");
 			azureCategoryIndex.add("id", moltinCategory.get("id"));
-			azureCategoryIndex.add("name", moltinCategory.get("name"));
+			azureCategoryIndex.add("title", moltinCategory.get("name"));
 			azureCategoryIndex.add("description", moltinCategory.get("description"));
 
 			if (moltinCategory.has("relationships")) {
@@ -153,9 +215,11 @@ public class AzureSearchService {
 		body.add("value", azureCategoriesIndex);
 
 		new AzureSearchRequest("indexes", "categories", "docs", "index").create(body.toString());
+
+		return azureCategoriesIndex;
 	}
 
-	public void populateProductsIndex(final JsonObject products, final JsonObject categories, final JsonObject files) {
+	public JsonArray populateProductsIndex(final JsonObject categories, final JsonObject products, final JsonObject files) {
 
 		final JsonObject cache = new JsonObject();
 		products.getAsJsonArray("data").forEach(p -> {
@@ -182,9 +246,10 @@ public class AzureSearchService {
 
 			azureProductIndex.addProperty("@search.action", "upload");
 			azureProductIndex.add("id", moltinProduct.get("id"));
-			azureProductIndex.add("name", moltinProduct.get("name"));
+			azureProductIndex.add("title", moltinProduct.get("name"));
 			azureProductIndex.add("description", moltinProduct.get("description"));
 			azureProductIndex.add("price", moltinProduct.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
+			azureProductIndex.add("sku", moltinProduct.get("sku"));
 
 			if (moltinProduct.has("relationships")) {
 
@@ -249,7 +314,7 @@ public class AzureSearchService {
 			if (moltinProduct.has("meta")) {
 
 				final JsonArray colors = new JsonArray();
-				final JsonArray variations = new JsonArray();
+				final JsonArray modifiers = new JsonArray();
 				final JsonArray sizes = new JsonArray();
 				final JsonObject moltinProductMeta = moltinProduct.getAsJsonObject("meta");
 
@@ -258,7 +323,7 @@ public class AzureSearchService {
 					final JsonArray moltinProductVariations = moltinProductMeta.getAsJsonArray("variations");
 					moltinProductVariations.forEach(_v -> {
 						final JsonObject v = _v.getAsJsonObject();
-						variations.add(v.get("name"));
+						modifiers.add(v.get("name"));
 						v.getAsJsonArray("options").forEach(_o -> {
 							final JsonObject o = _o.getAsJsonObject();
 							if (v.get("name").getAsString().equals("color")) {
@@ -272,7 +337,7 @@ public class AzureSearchService {
 					});
 				}
 
-				azureProductIndex.add("variations", variations);
+				azureProductIndex.add("modifiers", modifiers);
 				azureProductIndex.add("color", colors);
 				azureProductIndex.add("size", sizes);
 
@@ -284,6 +349,8 @@ public class AzureSearchService {
 		body.add("value", azureProductsIndex);
 
 		new AzureSearchRequest("indexes", "products", "docs", "index").create(body.toString());
+
+		return azureProductsIndex;
 	}
 
 }

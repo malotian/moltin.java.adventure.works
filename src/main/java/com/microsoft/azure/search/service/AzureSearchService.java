@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,30 +124,34 @@ public class AzureSearchService {
 
 		productsIndex.forEach(_p -> {
 			JsonObject p = _p.getAsJsonObject();
-			p.remove("category");
-			p.remove("description");
-			p.remove("category");
-			p.remove("categoryId");
-			p.remove("subcategory");
-			p.remove("subcategoryId");
-			p.remove("subcategoryId");
-			p.remove("color");
-			p.remove("title");
-			p.remove("modifiers");
-			p.remove("size");
-			p.add("productId", p.get("id"));
+			JsonObject v = p.deepCopy();
+
+			v.remove("category");
+			v.remove("description");
+			v.remove("category");
+			v.remove("categoryId");
+			v.remove("subcategory");
+			v.remove("subcategoryId");
+			v.remove("subcategoryId");
+			v.remove("color");
+			v.remove("title");
+			v.remove("modifiers");
+			v.remove("size");
+			v.add("productId", p.get("id"));
+
 			String sku = p.get("sku").getAsString();
 			JsonArray color = p.has("color") ? p.getAsJsonArray("color") : new JsonArray();
 			JsonArray size = p.has("size") ? p.getAsJsonArray("size") : new JsonArray();
-			JsonObject v = p.deepCopy();
 
 			if (color.size() > 0) {
 				color.forEach(c -> {
 					v.add("color", c);
-					if (v.has("size")) {
+					v.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(c.getAsString().getBytes()));
+					if (size.size() > 0) {
 						size.forEach(s -> {
-							v.add("size", s);
-							variantsIndex.add(v.deepCopy());
+							JsonObject variantIndex = v.deepCopy();
+							variantIndex.add("size", s);
+							variantIndex.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(s.getAsString().getBytes()));
 						});
 					} else {
 						variantsIndex.add(v.deepCopy());
@@ -155,10 +160,13 @@ public class AzureSearchService {
 			} else if (size.size() > 0) {
 				size.forEach(s -> {
 					v.add("size", s);
-					if (v.has("color")) {
+					v.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(s.getAsString().getBytes()));
+					if (color.size() > 0) {
 						color.forEach(c -> {
-							v.add("color", c);
-							variantsIndex.add(v.deepCopy());
+							JsonObject variantIndex = v.deepCopy();
+							variantIndex.add("color", c);
+							variantIndex.add("id", p.get("id"));
+							variantIndex.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(c.getAsString().getBytes()));
 						});
 					} else {
 						variantsIndex.add(v.deepCopy());

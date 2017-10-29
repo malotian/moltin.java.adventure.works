@@ -119,11 +119,8 @@ public class MoltinStore {
     awd.getProducts().forEach(_csvProduct -> {
       final JsonObject csvProduct = _csvProduct.getAsJsonObject();
 
-      if (csvProduct.getAsJsonArray("variants").size() <= 0) {
-        return;
-      }
-
-      final JsonObject csvFirstProductVariant = csvProduct.getAsJsonArray("variants").get(0).getAsJsonObject();
+      final JsonObject csvFirstProductVariant = csvProduct.getAsJsonArray("variants").size() > 0 
+    		  ? csvProduct.getAsJsonArray("variants").get(0).getAsJsonObject() : csvProduct;
 
       final Product product = new Product().withData(new com.moltin.api.v2.products.Data()
           .withPrice(Arrays.asList(new Price()

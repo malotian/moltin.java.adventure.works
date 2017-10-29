@@ -16,7 +16,6 @@ import com.moltin.api.v2.MoltinRequest;
 import com.moltin.api.v2.categories.Category;
 import com.moltin.api.v2.categories.Data;
 import com.moltin.api.v2.categories.relationships.categories.Parent;
-import com.moltin.api.v2.categories.relationships.categories.Relationship;
 import com.moltin.api.v2.modifiers.Modifier;
 import com.moltin.api.v2.options.Option;
 import com.moltin.api.v2.products.Price;
@@ -78,153 +77,139 @@ public class MoltinStore {
     final JsonObject cache = new JsonObject();
 
     final JsonArray productCategories = awd.read("ProductCategory.csv", CSVFormat.TDF.withHeader("id", "name", "guid", "date"), StandardCharsets.US_ASCII);
-    productCategories.forEach(_c -> {
-      final JsonObject c = _c.getAsJsonObject();
+    productCategories.forEach(_csvCategory -> {
+      final JsonObject csvCategory = _csvCategory.getAsJsonObject();
       final Category category = new Category()
           .withData(new Data()
               .withType("category")
-              .withName(c.get("name").getAsString())
-              .withDescription(c.get("name").getAsString())
-              .withSlug(c.get("name").getAsString())
+              .withName(csvCategory.get("name").getAsString())
+              .withDescription(csvCategory.get("name").getAsString())
+              .withSlug(csvCategory.get("name").getAsString())
               .withStatus("live"));
 
-      final String uuidCategory = new MoltinRequest("categories").create(category).get("data").getAsJsonObject().get("id").getAsString();
-      cache.addProperty(c.get("id").getAsString(), uuidCategory);
+      final String moltinCategoryUUID = new MoltinRequest("categories").create(category).get("data").getAsJsonObject().get("id").getAsString();
+      cache.addProperty(csvCategory.get("id").getAsString(), moltinCategoryUUID);
     });
 
     final JsonArray productSubcategories = awd.read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII);
-    productSubcategories.forEach(_sc -> {
-      final JsonObject sc = _sc.getAsJsonObject();
-      final Category category = new Category()
+    productSubcategories.forEach(_csvSubcategory -> {
+      final JsonObject csvSubCategory = _csvSubcategory.getAsJsonObject();
+      final Category subcategory = new Category()
           .withData(new Data()
               .withType("category")
-              .withName(sc.get("name").getAsString())
-              .withDescription(sc.get("name").getAsString())
-              .withSlug(sc.get("name").getAsString().toLowerCase())
+              .withName(csvSubCategory.get("name").getAsString())
+              .withDescription(csvSubCategory.get("name").getAsString())
+              .withSlug(csvSubCategory.get("name").getAsString().toLowerCase())
               .withStatus("live"));
-      final String uuidSubcategory = new MoltinRequest("categories").create(category).get("data").getAsJsonObject().get("id").getAsString();
+      final String moltinSubcategoryUUID = new MoltinRequest("categories").create(subcategory).get("data").getAsJsonObject().get("id").getAsString();
 
       //Datum datum = new Datum().withType("category").withId(sc.get("parent").toString());
-      final Relationship relationship = new Relationship()
+      final com.moltin.api.v2.categories.relationships.categories.Relationship relationshipCategoryCategory = new com.moltin.api.v2.categories.relationships.categories.Relationship()
           .withData(new com.moltin.api.v2.categories.relationships.categories.Data()
               .withParent(new Parent()
-                  .withId(cache.get(sc.get("parent").getAsString()).getAsString())
+                  .withId(cache.get(csvSubCategory.get("parent").getAsString()).getAsString())
                   .withType("category")));
 
-
-      new MoltinRequest("categories", uuidSubcategory, "relationships", "categories").create(relationship);
+      new MoltinRequest("categories", moltinSubcategoryUUID, "relationships", "categories").create(relationshipCategoryCategory);
 
     });
 
-    final JsonObject categoriesList = new MoltinRequest("categories").get();
-    final JsonObject productList = new MoltinRequest("products").get();
-    productList.getAsJsonArray("data").forEach(_product -> {
-      final JsonObject product = _product.getAsJsonObject();
-      new MoltinRequest("products", product.get("id").getAsString()).delete();
-    });
+    final JsonObject moltinCategories = new MoltinRequest("categories").get();
+    
+    awd.getProducts().forEach(_csvProduct -> {
+      final JsonObject csvProduct = _csvProduct.getAsJsonObject();
 
-    awd.getInventory().forEach(_product -> {
-      final JsonObject product = _product.getAsJsonObject();
-
-      if (product.getAsJsonArray("variants").size() <= 0) {
+      if (csvProduct.getAsJsonArray("variants").size() <= 0) {
         return;
       }
 
-      final JsonObject variant = product.getAsJsonArray("variants").get(0).getAsJsonObject();
-      final JsonArray categories = new JsonArray();
-      categoriesList.getAsJsonArray("data").forEach(_category -> {
-        final JsonObject category = _category.getAsJsonObject();
-        if (variant.getAsJsonObject("category").get("name").equals(category.get("name"))) {
-          categories.add(category.get("id"));
-        }
-      });
+      final JsonObject csvFirstProductVariant = csvProduct.getAsJsonArray("variants").get(0).getAsJsonObject();
 
-
-      final Product product2 = new Product().withData(new com.moltin.api.v2.products.Data()
-          /*.withWeight(new Weight().withUnit("kg")
-              .withValue("1"))*/
+      final Product product = new Product().withData(new com.moltin.api.v2.products.Data()
           .withPrice(Arrays.asList(new Price()
-              .withAmount((int)variant.get("price").getAsDouble() * 100)
+              .withAmount((int)csvFirstProductVariant.get("price").getAsDouble() * 100)
               .withCurrency("USD")
               .withIncludesTax(true)))
           .withStatus("live")
-          .withDescription(product.get("name").getAsString())
+          .withDescription(csvProduct.get("name").getAsString())
           .withManageStock(true)
-          .withName(product.get("name").getAsString())
-          /*.withDimensions(Arrays.asList(new Dimension()
-              .withMeasurement("length")
-              .withUnit("cm")
-              .withValue(variant.get("size").getAsString()),
-              new Dimension()
-              .withMeasurement("width")
-              .withUnit("cm")
-              .withValue(variant.get("size").getAsString()),
-              new Dimension()
-              .withMeasurement("height")
-              .withUnit("cm")
-              .withValue(variant.get("size").getAsString())))*/
+          .withName(csvProduct.get("name").getAsString())
           .withCommodityType("physical")
-          .withSlug(product.get("name").getAsString().toLowerCase().replace(" ", "-"))
-          .withSku(variant.get("sku").getAsString().substring(0, 7))
+          .withSlug(csvProduct.get("name").getAsString().toLowerCase().replace(" ", "-"))
+          .withSku(csvFirstProductVariant.get("sku").getAsString().substring(0, 7))
           .withType("product"));
 
 
-      final String uuidProduct = new MoltinRequest("products").create(product2).get("data").getAsJsonObject().get("id").getAsString();
-      final com.moltin.api.v2.products.relationships.categories.Relationship relationshipCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
-      categories.forEach(c -> relationshipCategory.getData().add(new com.moltin.api.v2.products.relationships.categories.Datum().withId(c.getAsString()).withType("category")));
+      final String uuidProduct = new MoltinRequest("products").create(product).get("data").getAsJsonObject().get("id").getAsString();
+      final com.moltin.api.v2.products.relationships.categories.Relationship relationshipProductCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
+      
+      moltinCategories.getAsJsonArray("data").forEach(_moltinCategory -> {
+        final JsonObject moltinCategory = _moltinCategory.getAsJsonObject();
+        if (csvFirstProductVariant.getAsJsonObject("category").get("name").equals(moltinCategory.get("name"))) {
+        	relationshipProductCategory.getData().add(
+        			new com.moltin.api.v2.products.relationships.categories.Datum()
+        			.withId(moltinCategory.get("id").getAsString())
+        			.withType("category"));
+        }
+      });
 
-      new MoltinRequest("products", uuidProduct, "relationships","categories").create(relationshipCategory);
+      new MoltinRequest("products", uuidProduct, "relationships","categories").create(relationshipProductCategory);
 
-      if (variant.has("image"))
+      if (csvFirstProductVariant.has("image"))
       {
-        final File largeImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("large_filename").getAsString().replace("gif", "png"));
+        final File largeImageFile = new File(new File(awd.getDirectory().toFile(), "images"), csvFirstProductVariant.getAsJsonObject("image").get("large_filename").getAsString().replace("gif", "png"));
         final String uuidLargeImage = new MoltinRequest("files").file(largeImageFile).get("data").getAsJsonObject().get("id").getAsString();
 
         final com.moltin.api.v2.products.relationships.images.Relationship relationshipMainImage = new com.moltin.api.v2.products.relationships.images.Relationship()
           .withData(new com.moltin.api.v2.products.relationships.images.Data().withId(uuidLargeImage).withType("main_image"));
         new MoltinRequest("products", uuidProduct, "relationships","main-image").create(relationshipMainImage);
 
-
-        final File thumbnailImageFile = new File(new File(awd.getDirectory().toFile(), "images"), variant.getAsJsonObject("image").get("thumbnail_filename").getAsString().replace("gif", "png"));
+        final File thumbnailImageFile = new File(new File(awd.getDirectory().toFile(), "images"), csvFirstProductVariant.getAsJsonObject("image").get("thumbnail_filename").getAsString().replace("gif", "png"));
         final String uuidThumbnailImage = new MoltinRequest("files").file(thumbnailImageFile).get("data").getAsJsonObject().get("id").getAsString();
 
         final com.moltin.api.v2.products.relationships.files.Relationship relationshipFile = new com.moltin.api.v2.products.relationships.files.Relationship()
-            .withData(Arrays.asList(new com.moltin.api.v2.products.relationships.files.Datum().withId(uuidThumbnailImage).withType("thumbnail")));
+            .withData(Arrays.asList(new com.moltin.api.v2.products.relationships.files.Datum().withId(uuidThumbnailImage).withType("file")));
 
         new MoltinRequest("products", uuidProduct, "relationships","files").create(relationshipFile);
 
       }
 
-      product.getAsJsonArray("modifiers").forEach(_modifier -> {
-        final JsonObject modifier = _modifier.getAsJsonObject();
+      csvProduct.getAsJsonArray("modifiers").forEach(_csvProductModifier -> {
+        final JsonObject csvProductModifier = _csvProductModifier.getAsJsonObject();
         final Variation variation = new Variation()
             .withData(new com.moltin.api.v2.variations.Data()
-                .withName(modifier.get("title").getAsString())
+                .withName(csvProductModifier.get("title").getAsString())
                 .withType("product-variation"));
-        final String uuidVariation = new MoltinRequest("variations").create(variation).get("data").getAsJsonObject().get("id").getAsString();
-        final com.moltin.api.v2.products.relationships.variations.Relationship relationship = new com.moltin.api.v2.products.relationships.variations.Relationship();
+        
+        final String moltinProductVariationUUID = new MoltinRequest("variations").create(variation).get("data").getAsJsonObject().get("id").getAsString();
+        final com.moltin.api.v2.products.relationships.variations.Relationship relationshipProcutVariation = new com.moltin.api.v2.products.relationships.variations.Relationship();
 
-        modifier.getAsJsonArray("values").forEach(value -> {
+        csvProductModifier.getAsJsonArray("values").forEach(csvProductModifierValue -> {
           final Option option = new Option()
               .withData(new com.moltin.api.v2.options.Data()
-                  .withName(value.getAsString())
+                  .withName(csvProductModifierValue.getAsString())
                   .withType("product-variation-option")
-                  .withDescription(value.getAsString() + " " + product.get("name").getAsString()));
+                  .withDescription(csvProductModifierValue.getAsString() + " " + csvProduct.get("name").getAsString()));
 
-          final JsonObject variationOption = new MoltinRequest("variations", uuidVariation, "variation-options").create(option);
-          variationOption.getAsJsonObject("data").getAsJsonArray("options").forEach(_vo -> {
-            final JsonObject vo = _vo.getAsJsonObject();
-            if (vo.get("name").equals(value))
+          final JsonObject moltinProductVariationVariationOptions = new MoltinRequest("variations", moltinProductVariationUUID, "variation-options").create(option);
+          
+          moltinProductVariationVariationOptions.getAsJsonObject("data").getAsJsonArray("options").forEach(_moltinProductVariationVariationOption -> {
+            final JsonObject moltinProductVariationVariationOption = _moltinProductVariationVariationOption.getAsJsonObject();
+            
+            if (moltinProductVariationVariationOption.get("name").equals(csvProductModifierValue))
             {
-              final Modifier productModifier = new Modifier()
+              final Modifier productModifierNameAppend = new Modifier()
                   .withData(new com.moltin.api.v2.modifiers.Data()
                       .withType("product-modifier")
                       .withModifierType("name_append")
-                      .withValue(value.getAsString()));
+                      .withValue(csvProductModifierValue.getAsString()));
 
-              final String uuidOption = vo.get("id").getAsString();
-              final String uuidProductModifier = new MoltinRequest("variations", uuidVariation, "variation-options" ,uuidOption ,"product-modifiers").create(productModifier).get("data").getAsJsonObject().get("id").getAsString();
-              relationship.getData().add(new Datum()
+              final String moltinProductVariationVariationOptionUUID = moltinProductVariationVariationOption.get("id").getAsString();
+              
+              final String uuidProductModifier = new MoltinRequest("variations", moltinProductVariationUUID, "variation-options" ,
+            		  moltinProductVariationVariationOptionUUID ,"product-modifiers").create(productModifierNameAppend).get("data").getAsJsonObject().get("id").getAsString();
+              
+              relationshipProcutVariation.getData().add(new Datum()
                       .withType("product-variation")
                       .withId(uuidProductModifier));
 
@@ -232,7 +217,7 @@ public class MoltinStore {
           });
         });
 
-        new MoltinRequest("products", uuidProduct, "relationships", "variations").create(relationship);
+        new MoltinRequest("products", uuidProduct, "relationships", "variations").create(relationshipProcutVariation);
 
       });
     });

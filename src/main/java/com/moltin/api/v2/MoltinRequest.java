@@ -28,6 +28,14 @@ public class MoltinRequest extends RestRequest {
 		url = "https://api.moltin.com/v2/" + StringUtils.join(urlPath, '/');
 	}
 
+	protected MoltinRequest() {
+	}
+
+	MoltinRequest withUrl(String url) {
+		this.url = url;
+		return this;
+	}
+
 	public JsonObject create(final Entity<?> entity) {
 		try {
 			final Response response = moltin().post(entity);
@@ -80,7 +88,17 @@ public class MoltinRequest extends RestRequest {
 				LOGGER.error("failure, entity: {}", response.readEntity(String.class)); //$NON-NLS-1$
 			}
 
-			return response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
+			JsonObject result = response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
+			JsonObject result2 = result;
+
+			while (result2.has("links") && null != result2.getAsJsonObject("links").get("next") && !result2.getAsJsonObject("links").get("next").isJsonNull()) {
+				if (result2.getAsJsonObject("links").get("next").equals(result2.getAsJsonObject("links").get("current")))
+					break;
+				result2 = new MoltinRequest().withUrl(result2.getAsJsonObject("links").get("next").getAsString()).get();
+				result.getAsJsonArray("data").addAll(result2.getAsJsonArray("data"));
+			}
+
+			return result;
 
 		} catch (final Exception e) {
 			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));

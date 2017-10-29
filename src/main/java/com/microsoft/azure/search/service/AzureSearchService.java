@@ -262,7 +262,8 @@ public class AzureSearchService {
 						final JsonObject moltinImage = cache.getAsJsonObject(moltinProductMainImage.get("id").getAsString());
 
 						if (null == moltinImage || !moltinImage.has("link")) {
-							LOGGER.error("error, missing link: {}", moltinProductMainImage.get("id"));
+							LOGGER.error("error, missing link: {} for: {}", moltinProductMainImage.get("id"), moltinProduct.get("id"));
+							LOGGER.error("error, object: {}", moltinProductMainImage.toString());
 							return;
 						}
 
@@ -276,6 +277,8 @@ public class AzureSearchService {
 							LOGGER.error("error, while updating products index (for image), e: {}", ExceptionUtils.getStackTrace(e));
 						}
 
+					} else {
+						LOGGER.error("no image for id: {}", moltinProduct.get("id"));
 					}
 				}
 

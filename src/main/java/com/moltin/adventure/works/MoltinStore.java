@@ -115,11 +115,16 @@ public class MoltinStore {
     });
 
     final JsonObject moltinCategories = new MoltinRequest("categories").get();
-    
+
     awd.getProducts().forEach(_csvProduct -> {
       final JsonObject csvProduct = _csvProduct.getAsJsonObject();
 
-      final JsonObject csvFirstProductVariant = csvProduct.getAsJsonArray("variants").size() > 0 
+      if (csvProduct.getAsJsonArray("variants").size() <= 0)
+	 {
+		return; // temp fix
+	}
+
+      final JsonObject csvFirstProductVariant = csvProduct.getAsJsonArray("variants").size() > 0
     		  ? csvProduct.getAsJsonArray("variants").get(0).getAsJsonObject() : csvProduct;
 
       final Product product = new Product().withData(new com.moltin.api.v2.products.Data()
@@ -139,7 +144,7 @@ public class MoltinStore {
 
       final String uuidProduct = new MoltinRequest("products").create(product).get("data").getAsJsonObject().get("id").getAsString();
       final com.moltin.api.v2.products.relationships.categories.Relationship relationshipProductCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
-      
+
       moltinCategories.getAsJsonArray("data").forEach(_moltinCategory -> {
         final JsonObject moltinCategory = _moltinCategory.getAsJsonObject();
         if (csvFirstProductVariant.getAsJsonObject("category").get("name").equals(moltinCategory.get("name"))) {
@@ -177,7 +182,7 @@ public class MoltinStore {
             .withData(new com.moltin.api.v2.variations.Data()
                 .withName(csvProductModifier.get("title").getAsString())
                 .withType("product-variation"));
-        
+
         final String moltinProductVariationUUID = new MoltinRequest("variations").create(variation).get("data").getAsJsonObject().get("id").getAsString();
         final com.moltin.api.v2.products.relationships.variations.Relationship relationshipProcutVariation = new com.moltin.api.v2.products.relationships.variations.Relationship();
 
@@ -189,10 +194,10 @@ public class MoltinStore {
                   .withDescription(csvProductModifierValue.getAsString() + " " + csvProduct.get("name").getAsString()));
 
           final JsonObject moltinProductVariationVariationOptions = new MoltinRequest("variations", moltinProductVariationUUID, "variation-options").create(option);
-          
+
           moltinProductVariationVariationOptions.getAsJsonObject("data").getAsJsonArray("options").forEach(_moltinProductVariationVariationOption -> {
             final JsonObject moltinProductVariationVariationOption = _moltinProductVariationVariationOption.getAsJsonObject();
-            
+
             if (moltinProductVariationVariationOption.get("name").equals(csvProductModifierValue))
             {
               final Modifier productModifierNameAppend = new Modifier()
@@ -202,10 +207,10 @@ public class MoltinStore {
                       .withValue(csvProductModifierValue.getAsString()));
 
               final String moltinProductVariationVariationOptionUUID = moltinProductVariationVariationOption.get("id").getAsString();
-              
+
               final String uuidProductModifier = new MoltinRequest("variations", moltinProductVariationUUID, "variation-options" ,
             		  moltinProductVariationVariationOptionUUID ,"product-modifiers").create(productModifierNameAppend).get("data").getAsJsonObject().get("id").getAsString();
-              
+
               relationshipProcutVariation.getData().add(new Datum()
                       .withType("product-variation")
                       .withId(uuidProductModifier));

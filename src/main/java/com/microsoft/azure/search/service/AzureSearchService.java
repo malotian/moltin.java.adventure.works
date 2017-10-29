@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.microsoft.azure.search.api.AzureSearchRequest;
 import com.microsoft.azure.search.api.indexes.CorsOptions;
 import com.microsoft.azure.search.api.indexes.Field;
@@ -117,72 +116,6 @@ public class AzureSearchService {
 		return this;
 	}
 
-	public void populateIndexes(final JsonObject categories, final JsonObject products, final JsonObject files) {
-		populateCategoriesIndex(categories);
-		JsonArray productsIndex = populateProductsIndex(categories, products, files);
-		JsonArray variantsIndex = new JsonArray();
-
-		productsIndex.forEach(_p -> {
-			JsonObject p = _p.getAsJsonObject();
-			JsonObject v = p.deepCopy();
-
-			v.remove("category");
-			v.remove("description");
-			v.remove("category");
-			v.remove("categoryId");
-			v.remove("subcategory");
-			v.remove("subcategoryId");
-			v.remove("subcategoryId");
-			v.remove("color");
-			v.remove("title");
-			v.remove("modifiers");
-			v.remove("size");
-			v.add("productId", p.get("id"));
-
-			String sku = p.get("sku").getAsString();
-			JsonArray color = p.has("color") ? p.getAsJsonArray("color") : new JsonArray();
-			JsonArray size = p.has("size") ? p.getAsJsonArray("size") : new JsonArray();
-
-			if (color.size() > 0) {
-				color.forEach(c -> {
-					v.add("color", c);
-					v.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(c.getAsString().getBytes()));
-					if (size.size() > 0) {
-						size.forEach(s -> {
-							JsonObject variantIndex = v.deepCopy();
-							variantIndex.add("size", s);
-							variantIndex.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(s.getAsString().getBytes()));
-						});
-					} else {
-						variantsIndex.add(v.deepCopy());
-					}
-				});
-			} else if (size.size() > 0) {
-				size.forEach(s -> {
-					v.add("size", s);
-					v.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(s.getAsString().getBytes()));
-					if (color.size() > 0) {
-						color.forEach(c -> {
-							JsonObject variantIndex = v.deepCopy();
-							variantIndex.add("color", c);
-							variantIndex.add("id", p.get("id"));
-							variantIndex.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(c.getAsString().getBytes()));
-						});
-					} else {
-						variantsIndex.add(v.deepCopy());
-					}
-				});
-			} else {
-				variantsIndex.add(v.deepCopy());
-			}
-		});
-
-		final JsonObject body = new JsonObject();
-		body.add("value", variantsIndex);
-		new AzureSearchRequest("indexes", "variants", "docs", "index").create(body.toString());
-
-	}
-
 	public JsonArray populateCategoriesIndex(final JsonObject categories) {
 
 		final JsonObject cache = new JsonObject();
@@ -227,6 +160,75 @@ public class AzureSearchService {
 		return azureCategoriesIndex;
 	}
 
+	public void populateIndexes(final JsonObject categories, final JsonObject products, final JsonObject files) {
+		populateCategoriesIndex(categories);
+		final JsonArray productsIndex = populateProductsIndex(categories, products, files);
+		final JsonArray azureVariantsIndex = new JsonArray();
+
+		productsIndex.forEach(_p -> {
+			final JsonObject p = _p.getAsJsonObject();
+			final JsonObject v = p.deepCopy();
+
+			v.remove("category");
+			v.remove("description");
+			v.remove("category");
+			v.remove("categoryId");
+			v.remove("subcategory");
+			v.remove("subcategoryId");
+			v.remove("subcategoryId");
+			v.remove("color");
+			v.remove("title");
+			v.remove("modifiers");
+			v.remove("size");
+			v.add("productId", p.get("id"));
+
+			p.get("sku").getAsString();
+			final JsonArray color = p.has("color") ? p.getAsJsonArray("color") : new JsonArray();
+			final JsonArray size = p.has("size") ? p.getAsJsonArray("size") : new JsonArray();
+
+			if (color.size() > 0) {
+				color.forEach(c -> {
+					final JsonObject vc = v.deepCopy();
+					vc.add("color", c);
+					vc.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(c.getAsString().getBytes()));
+					if (size.size() > 0) {
+						size.forEach(s -> {
+							final JsonObject vcs = vc.deepCopy();
+							vcs.add("size", s);
+							vcs.addProperty("id", vc.get("id").getAsString() + "--" + Hex.encodeHexString(s.getAsString().getBytes()));
+							azureVariantsIndex.add(vcs);
+						});
+					} else {
+						azureVariantsIndex.add(vc.deepCopy());
+					}
+				});
+			} else if (size.size() > 0) {
+				size.forEach(s -> {
+					final JsonObject vs = v.deepCopy();
+					vs.add("size", s);
+					vs.addProperty("id", v.get("id").getAsString() + "--" + Hex.encodeHexString(s.getAsString().getBytes()));
+					if (color.size() > 0) {
+						color.forEach(c -> {
+							final JsonObject vsc = vs.deepCopy();
+							vsc.add("color", c);
+							vsc.addProperty("id", vs.get("id").getAsString() + "--" + Hex.encodeHexString(c.getAsString().getBytes()));
+							azureVariantsIndex.add(vsc);
+						});
+					} else {
+						azureVariantsIndex.add(vs.deepCopy());
+					}
+				});
+			} else {
+				azureVariantsIndex.add(v.deepCopy());
+			}
+		});
+
+		final JsonObject body = new JsonObject();
+		body.add("value", azureVariantsIndex);
+		new AzureSearchRequest("indexes", "variants", "docs", "index").create(body.toString());
+
+	}
+
 	public JsonArray populateProductsIndex(final JsonObject categories, final JsonObject products, final JsonObject files) {
 
 		final JsonObject cache = new JsonObject();
@@ -259,6 +261,8 @@ public class AzureSearchService {
 			azureProductIndex.add("price", moltinProduct.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
 			azureProductIndex.add("sku", moltinProduct.get("sku"));
 
+			LOGGER.debug("added azureProductIndex for id: {}, sku: {}", azureProductIndex.get("id"), azureProductIndex.get("sku"));
+
 			if (moltinProduct.has("relationships")) {
 
 				final JsonObject moltinProductRelationships = moltinProduct.getAsJsonObject("relationships");
@@ -268,23 +272,21 @@ public class AzureSearchService {
 					if ("main_image".equals(moltinProductMainImage.get("type").getAsString())) {
 
 						final JsonObject moltinImage = cache.getAsJsonObject(moltinProductMainImage.get("id").getAsString());
+						if (moltinImage.has("link")) {
 
-						if (null == moltinImage || !moltinImage.has("link")) {
+							final JsonObject moltinImageLink = moltinImage.getAsJsonObject("link");
+							URL moltinImageLinkUrl;
+							try {
+								moltinImageLinkUrl = new URL(moltinImageLink.get("href").getAsString());
+								azureProductIndex.addProperty("image_domain", moltinImageLinkUrl.getHost());
+								azureProductIndex.addProperty("image_suffix", moltinImageLinkUrl.getFile());
+							} catch (final MalformedURLException e) {
+								LOGGER.error("error, while updating products index (for image), e: {}", ExceptionUtils.getStackTrace(e));
+							}
+						} else {
 							LOGGER.error("error, missing link: {} for: {}", moltinProductMainImage.get("id"), moltinProduct.get("id"));
 							LOGGER.error("error, object: {}", moltinProductMainImage.toString());
-							return;
 						}
-
-						final JsonObject moltinImageLink = moltinImage.getAsJsonObject("link");
-						URL moltinImageLinkUrl;
-						try {
-							moltinImageLinkUrl = new URL(moltinImageLink.get("href").getAsString());
-							azureProductIndex.addProperty("image_domain", moltinImageLinkUrl.getHost());
-							azureProductIndex.addProperty("image_suffix", moltinImageLinkUrl.getFile());
-						} catch (final MalformedURLException e) {
-							LOGGER.error("error, while updating products index (for image), e: {}", ExceptionUtils.getStackTrace(e));
-						}
-
 					} else {
 						LOGGER.error("no image for id: {}", moltinProduct.get("id"));
 					}
@@ -299,24 +301,22 @@ public class AzureSearchService {
 							azureProductIndex.add("subcategory", moltinSubcategory.get("name"));
 							azureProductIndex.add("subcategoryId", moltinSubcategory.get("id"));
 
-							if (!moltinSubcategory.has("relationships")) {
-								return;
-							}
+							if (moltinSubcategory.has("relationships")) {
 
-							final JsonObject moltinCategoryRelationships = moltinSubcategory.getAsJsonObject("relationships");
-							if (!moltinCategoryRelationships.has("parent")) {
-								return;
-							}
+								final JsonObject moltinCategoryRelationships = moltinSubcategory.getAsJsonObject("relationships");
+								if (moltinCategoryRelationships.has("parent")) {
 
-							final JsonObject moltinCategoryParent = moltinCategoryRelationships.getAsJsonObject("parent");
-							moltinCategoryParent.getAsJsonArray("data").forEach(_parent -> {
-								final JsonObject parent = _parent.getAsJsonObject();
-								if ("category".equals(parent.get("type").getAsString())) {
-									final JsonObject moltinCategory = cache.getAsJsonObject(parent.get("id").getAsString());
-									azureProductIndex.add("category", moltinCategory.get("name"));
-									azureProductIndex.add("categoryId", moltinCategory.get("id"));
+									final JsonObject moltinCategoryParent = moltinCategoryRelationships.getAsJsonObject("parent");
+									moltinCategoryParent.getAsJsonArray("data").forEach(_parent -> {
+										final JsonObject parent = _parent.getAsJsonObject();
+										if ("category".equals(parent.get("type").getAsString())) {
+											final JsonObject moltinCategory = cache.getAsJsonObject(parent.get("id").getAsString());
+											azureProductIndex.add("category", moltinCategory.get("name"));
+											azureProductIndex.add("categoryId", moltinCategory.get("id"));
+										}
+									});
 								}
-							});
+							}
 						}
 					});
 				}

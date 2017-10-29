@@ -46,11 +46,11 @@ public class Application {
 
 			LOGGER.info("moltin.java.adventure.works.home: {}", Util.MOLTIN_JAVA_ADVENTURE_WORKS_HOME);
 
-//			application.getAdventureWorksData().dump();
-//			application.getMoltinStore().deleteProducts();
-//			application.getMoltinStore().deleteCategories();
-//			application.getMoltinStore().deleteFiles();
-//			application.getMoltinStore().populate(application.getAdventureWorksData());
+			// application.getAdventureWorksData().dump();
+			// application.getMoltinStore().deleteFiles();
+			// application.getMoltinStore().deleteCategories();
+			// application.getMoltinStore().deleteProducts();
+			// application.getMoltinStore().populate(application.getAdventureWorksData());
 
 			final AzureSearchService ass = new AzureSearchService();
 
@@ -74,10 +74,6 @@ public class Application {
 
 	private MoltinStore moltinStore;
 
-	private AdventureWorksData getAdventureWorksData() {
-		return adventureWorksData;
-	}
-
 	public MoltinStore getMoltinStore() {
 		return moltinStore;
 	}
@@ -91,8 +87,9 @@ public class Application {
 		setMoltinStore(new MoltinStore());
 		getMoltinStore().initialize();
 
-		//setAdventureWorksData(new AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
-		//getAdventureWorksData().initialize();
+		// setAdventureWorksData(new
+		// AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
+		// getAdventureWorksData().initialize();
 
 		return this;
 	}

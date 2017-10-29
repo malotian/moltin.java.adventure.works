@@ -24,16 +24,11 @@ public class MoltinRequest extends RestRequest {
 
 	String url = StringUtils.EMPTY;
 
-	public MoltinRequest(final String... urlPath) {
-		url = "https://api.moltin.com/v2/" + StringUtils.join(urlPath, '/');
-	}
-
 	protected MoltinRequest() {
 	}
 
-	MoltinRequest withUrl(String url) {
-		this.url = url;
-		return this;
+	public MoltinRequest(final String... urlPath) {
+		url = "https://api.moltin.com/v2/" + StringUtils.join(urlPath, '/');
 	}
 
 	public JsonObject create(final Entity<?> entity) {
@@ -88,14 +83,18 @@ public class MoltinRequest extends RestRequest {
 				LOGGER.error("failure, entity: {}", response.readEntity(String.class)); //$NON-NLS-1$
 			}
 
-			JsonObject result = response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
+			final JsonObject result = response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
 			JsonObject result2 = result;
 
-			while (result2.has("links") && null != result2.getAsJsonObject("links").get("next") && !result2.getAsJsonObject("links").get("next").isJsonNull()) {
-				if (result2.getAsJsonObject("links").get("next").equals(result2.getAsJsonObject("links").get("current")))
-					break;
-				result2 = new MoltinRequest().withUrl(result2.getAsJsonObject("links").get("next").getAsString()).get();
-				result.getAsJsonArray("data").addAll(result2.getAsJsonArray("data"));
+			if (result2.has("meta")) {
+				final JsonObject meta = result2.getAsJsonObject("meta");
+				if (meta.has("page")) {
+					final JsonObject page = meta.getAsJsonObject("page");
+					if (page.get("total").getAsInt() > page.get("current").getAsInt()) {
+						result2 = new MoltinRequest().withUrl(result2.getAsJsonObject("links").get("next").getAsString()).get();
+						result.getAsJsonArray("data").addAll(result2.getAsJsonArray("data"));
+					}
+				}
 			}
 
 			return result;
@@ -110,6 +109,11 @@ public class MoltinRequest extends RestRequest {
 		final AuthenticateResponse ar = Context.get(AuthenticateResponse.class);
 		return client().target(url).request() // $NON-NLS-1$
 				.header("Authorization", ar.getTokenType() + " " + ar.getAccessToken());
+	}
+
+	MoltinRequest withUrl(final String url) {
+		this.url = url;
+		return this;
 	}
 
 }

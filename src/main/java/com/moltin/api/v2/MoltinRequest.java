@@ -31,7 +31,7 @@ public class MoltinRequest extends RestRequest {
 		url = "https://api.moltin.com/v2/" + StringUtils.join(urlPath, '/');
 	}
 
-	public JsonObject create(final Entity<?> entity) {
+	private JsonObject create(final Entity<?> entity) {
 		try {
 			final Response response = moltin().post(entity);
 

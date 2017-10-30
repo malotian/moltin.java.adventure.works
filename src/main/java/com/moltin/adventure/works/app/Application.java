@@ -46,11 +46,11 @@ public class Application {
 
 			LOGGER.info("moltin.java.adventure.works.home: {}", Util.MOLTIN_JAVA_ADVENTURE_WORKS_HOME);
 
-			// application.getAdventureWorksData().dump();
-			// application.getMoltinStore().deleteFiles();
-			// application.getMoltinStore().deleteCategories();
-			// application.getMoltinStore().deleteProducts();
-			// application.getMoltinStore().populate(application.getAdventureWorksData());
+			application.getAdventureWorksData().dump();
+			application.getMoltinStore().deleteFiles();
+			application.getMoltinStore().deleteCategories();
+			application.getMoltinStore().deleteProducts();
+			application.getMoltinStore().populate(application.getAdventureWorksData());
 
 			final AzureSearchService ass = new AzureSearchService();
 
@@ -63,7 +63,8 @@ public class Application {
 			ass.defineCategoriesIndex();
 			ass.defineProductsIndex();
 			ass.defineVariantsIndex();
-			ass.populateIndexes(application.getMoltinStore().getCategories(), application.getMoltinStore().getProducts(), application.getMoltinStore().getFiles());
+			ass.populateIndexes(application.getMoltinStore().getCategories(), application.getMoltinStore().getProducts(),
+					application.getMoltinStore().getFiles());
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));
@@ -87,9 +88,8 @@ public class Application {
 		setMoltinStore(new MoltinStore());
 		getMoltinStore().initialize();
 
-		// setAdventureWorksData(new
-		// AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
-		// getAdventureWorksData().initialize();
+		setAdventureWorksData(new AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
+		getAdventureWorksData().initialize();
 
 		return this;
 	}
@@ -108,6 +108,10 @@ public class Application {
 
 	public void setAdventureWorksData(final AdventureWorksData adventureWorksData) {
 		this.adventureWorksData = adventureWorksData;
+	}
+
+	public AdventureWorksData getAdventureWorksData() {
+		return adventureWorksData;
 	}
 
 	public void setMoltinStore(final MoltinStore moltinStore) {

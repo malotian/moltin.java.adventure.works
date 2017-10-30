@@ -171,42 +171,31 @@ public class AdventureWorksData {
 
 	public void initialize() throws IOException {
 
-		clean("ProductModel.csv",
-				new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
+		clean("ProductModel.csv", new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
 				StandardCharsets.UTF_16);
 
 		clean("ProductDescription.csv", new String[] { "\"" }, StandardCharsets.UTF_16);
 
 		setCategories(read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII));
-		setProducts(
-				read("ProductModel.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"),
-						StandardCharsets.UTF_16, true));
-		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"),
-				StandardCharsets.UTF_16));
-		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"),
-				StandardCharsets.US_ASCII));
-		setImages(read("ProductPhoto.csv",
-				CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
+		setProducts(read("ProductModel.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"), StandardCharsets.UTF_16,
+				true));
+		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"), StandardCharsets.UTF_16));
+		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"), StandardCharsets.US_ASCII));
+		setImages(read("ProductPhoto.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
 				StandardCharsets.UTF_16, true));
-		setImagesLink(
-				read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
+		setImagesLink(read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
 		setVariants(read("Product.csv",
-				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price",
-						"size", "sizeUnit", "weightUnit",
-						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate",
-						"discontinuedDate", "guid",
+				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price", "size", "sizeUnit", "weightUnit",
+						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate", "discontinuedDate", "guid",
 						"modified"),
 				StandardCharsets.US_ASCII));
 		setOrderHeader(read("SalesOrderHeader.csv",
-				CSVFormat.TDF.withHeader("orderId", "revisionNumber", "orderDate", "dueDate", "shipDate", "status", "isOnline", "onlineNumber",
-						"poNumber", "accountNumber",
-						"customer", "salesPerson", "territory", "billTo", "shipTo", "shipMethod", "cc", "ccCode", "currency", "subTotal", "tax",
-						"freight", "total", "comment",
+				CSVFormat.TDF.withHeader("orderId", "revisionNumber", "orderDate", "dueDate", "shipDate", "status", "isOnline", "onlineNumber", "poNumber", "accountNumber",
+						"customer", "salesPerson", "territory", "billTo", "shipTo", "shipMethod", "cc", "ccCode", "currency", "subTotal", "tax", "freight", "total", "comment",
 						"guid", "date"),
 				StandardCharsets.US_ASCII));
 		setOrderDetail(read("SalesOrderDetail.csv",
-				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid",
-						"date"),
+				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid", "date"),
 				StandardCharsets.US_ASCII));
 
 		final File imagesDirectory = new File(directory.toString(), "images");
@@ -282,13 +271,15 @@ public class AdventureWorksData {
 
 					varities.add(v);
 					if (v.has("color") && StringUtils.isNotBlank(v.get("color").getAsString()) && !colors.contains(v.get("color"))) {
-						if (!colors.contains(v.get("color")))
+						if (!colors.contains(v.get("color"))) {
 							colors.add(v.get("color"));
+						}
 					}
-					
+
 					if (v.has("size") && StringUtils.isNotBlank(v.get("size").getAsString()) && !colors.contains(v.get("size"))) {
-						if (!sizes.contains(v.get("size")))
+						if (!sizes.contains(v.get("size"))) {
 							sizes.add(v.get("size"));
+						}
 					}
 				}
 			});

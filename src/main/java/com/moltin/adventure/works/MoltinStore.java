@@ -66,6 +66,11 @@ public class MoltinStore {
 	public JsonObject getProducts() {
 		return new MoltinRequest("products").get();
 	}
+	
+	public JsonObject getProduct(String uuid) {
+		return new MoltinRequest("products", uuid).get();
+	}
+
 
 	public MoltinStore initialize() {
 		final AuthenticateRequest authenticateRequest = new AuthenticateRequest();

@@ -63,7 +63,7 @@ public class Application {
 			ass.defineCategoriesIndex();
 			ass.defineProductsIndex();
 			ass.defineVariantsIndex();
-			ass.populateIndexes(application.getMoltinStore().getCategories(), application.getMoltinStore().getProducts(), application.getMoltinStore().getFiles());
+			ass.populateIndexes(application.getMoltinStore());
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));

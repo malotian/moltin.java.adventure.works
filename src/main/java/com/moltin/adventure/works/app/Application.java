@@ -97,18 +97,6 @@ public class Application {
 		return this;
 	}
 
-	public Application initializeX() throws ConfigurationException, IOException {
-
-		// do not alter sequence of initializaion
-		final Configuration configuration = new Configuration();
-		Context.put(Configuration.class, configuration.initialize());
-
-		setMoltinStore(new MoltinStore());
-		getMoltinStore().initialize();
-
-		return this;
-	}
-
 	public void setAdventureWorksData(final AdventureWorksData adventureWorksData) {
 		this.adventureWorksData = adventureWorksData;
 	}

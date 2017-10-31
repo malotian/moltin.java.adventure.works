@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
@@ -123,6 +124,9 @@ public class MoltinStore {
 			final String uuidProduct = new MoltinRequest("products").create(product).get("data").getAsJsonObject().get("id").getAsString();
 			final com.moltin.api.v2.products.relationships.categories.Relationship relationshipProductCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
 
+			AtomicReference<Boolean> shallBuildChildProducts = new AtomicReference<>();
+			shallBuildChildProducts.set(new Boolean(false));
+
 			moltinCategories.getAsJsonArray("data").forEach(_moltinCategory -> {
 				final JsonObject moltinCategory = _moltinCategory.getAsJsonObject();
 				if (csvFirstProductVariant.getAsJsonObject("category").get("name").equals(moltinCategory.get("name"))) {
@@ -183,6 +187,9 @@ public class MoltinStore {
 							final Modifier productModifierSlugAppend = new Modifier().withData(
 									new com.moltin.api.v2.modifiers.Data().withType("product-modifier").withModifierType("slug_append").withValue("-" + productModifierSuffix));
 
+							final Modifier productModifierDescriptionAppend = new Modifier().withData(new com.moltin.api.v2.modifiers.Data().withType("product-modifier")
+									.withModifierType("description_append").withValue(",{" + csvProductModifier.get("title").getAsString() + "=" + productModifierSuffix + "}"));
+
 							final String moltinProductVariationVariationOptionUUID = moltinProductVariationVariationOption.get("id").getAsString();
 
 							final String moltinProductVariationVariationOptionProductModifierNameAppendUUID = new MoltinRequest("variations", moltinProductVariationUUID,
@@ -197,13 +204,20 @@ public class MoltinStore {
 									"variation-options", moltinProductVariationVariationOptionUUID, "product-modifiers").create(productModifierSlugAppend).get("data")
 											.getAsJsonObject().get("id").getAsString();
 
+							final String moltinProductVariationVariationOptionProductModifierDescriptionUUID = new MoltinRequest("variations", moltinProductVariationUUID,
+									"variation-options", moltinProductVariationVariationOptionUUID, "product-modifiers").create(productModifierDescriptionAppend).get("data")
+											.getAsJsonObject().get("id").getAsString();
+
 							relationshipProductVariation.getData()
 									.add(new Datum().withType("product-variation").withId(moltinProductVariationVariationOptionProductModifierNameAppendUUID));
 							relationshipProductVariation.getData()
 									.add(new Datum().withType("product-variation").withId(moltinProductVariationVariationOptionProductModifierSkuAppendUUID));
 							relationshipProductVariation.getData()
 									.add(new Datum().withType("product-variation").withId(moltinProductVariationVariationOptionProductModifierSlugAppendUUID));
+							relationshipProductVariation.getData()
+									.add(new Datum().withType("product-variation").withId(moltinProductVariationVariationOptionProductModifierDescriptionUUID));
 
+							shallBuildChildProducts.set(new Boolean(true));
 						}
 					});
 				});
@@ -211,7 +225,9 @@ public class MoltinStore {
 				new MoltinRequest("products", uuidProduct, "relationships", "variations").create(relationshipProductVariation);
 
 			});
-			new MoltinRequest("products", uuidProduct, "build").create(null);
+
+			if (shallBuildChildProducts.get())
+				new MoltinRequest("products", uuidProduct, "build").create(null);
 		});
 	}
 }

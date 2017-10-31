@@ -191,18 +191,6 @@ public class AzureSearchService {
 
 			final JsonObject moltinProduct = p.getAsJsonObject();
 
-			if (!moltinProduct.has("relationships") || !moltinProduct.getAsJsonObject("relationships").has("variations")) {
-				return;
-			}
-
-			if (!moltinProduct.getAsJsonObject("relationships").getAsJsonObject("variations").has("data")) {
-				return;
-			}
-
-			if (moltinProduct.getAsJsonObject("relationships").getAsJsonObject("variations").getAsJsonArray("data").size() <= 0) {
-				return;
-			}
-
 			final JsonObject azureProductIndex = new JsonObject();
 			azureProductsIndex.add(azureProductIndex);
 
@@ -281,7 +269,6 @@ public class AzureSearchService {
 				final JsonArray sizes = new JsonArray();
 				final JsonObject moltinProductMeta = moltinProduct.getAsJsonObject("meta");
 
-				JsonObject variationCache = new JsonObject();
 				if (moltinProductMeta.has("variations")) {
 
 					final JsonArray moltinProductVariations = moltinProductMeta.getAsJsonArray("variations");
@@ -293,7 +280,6 @@ public class AzureSearchService {
 						v.getAsJsonArray("options").forEach(_o -> {
 							final JsonObject o = _o.getAsJsonObject();
 							String optionValue = o.get("name").getAsString();
-							variationCache.addProperty(o.get("id").getAsString(), optionType + "." + optionValue);
 
 							if (optionType.equals("color")) {
 								colors.add(optionValue);
@@ -304,6 +290,31 @@ public class AzureSearchService {
 							}
 						});
 					});
+				} else {
+
+					final JsonObject azureVariantIndex = new JsonObject();
+					azureProductsIndex.remove(azureProductIndex);
+					azureVariantsIndex.add(azureVariantIndex);
+
+					azureVariantIndex.add("id", moltinProduct.get("id"));
+					azureVariantIndex.addProperty("@search.action", "upload");
+					azureVariantIndex.add("image_domain", azureProductIndex.get("image_domain"));
+					azureVariantIndex.add("image_suffix", azureProductIndex.get("image_suffix"));
+					azureVariantIndex.add("price", moltinProduct.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
+					azureVariantIndex.add("sku", moltinProduct.get("sku"));
+
+					String description = moltinProduct.get("description").getAsString();
+					String[] descriptionTokens = description.split(",");
+					for (String descriptionToken : descriptionTokens) {
+						if (descriptionToken.contains("=") && descriptionToken.contains("") && descriptionToken.contains("}")) {
+							
+							String descriptionToken1 = descriptionToken.replaceAll("\\{", "");
+							descriptionToken1 = descriptionToken1.replaceAll("\\}", "");
+							String[] attribute = descriptionToken1.split("=");
+							azureVariantIndex.addProperty(attribute[0], attribute[1]);
+
+						}
+					}
 				}
 
 				azureProductIndex.add("modifiers", modifiers);
@@ -327,50 +338,52 @@ public class AzureSearchService {
 
 }
 
-
-//if (moltinProductMeta.has("variation_matrix")) {
-//	JsonObject moltinProductMetaVariationMatrix = moltinProductMeta.getAsJsonObject("variation_matrix");
-//	final JsonObject azureVariantIndex = new JsonObject();
-//	azureVariantsIndex.add(azureVariantIndex);
+// if (moltinProductMeta.has("variation_matrix")) {
+// JsonObject moltinProductMetaVariationMatrix =
+// moltinProductMeta.getAsJsonObject("variation_matrix");
+// final JsonObject azureVariantIndex = new JsonObject();
+// azureVariantsIndex.add(azureVariantIndex);
 //
-//	azureVariantIndex.add("image_domain", azureProductIndex.get("image_domain"));
-//	azureVariantIndex.add("image_suffix", azureProductIndex.get("image_suffix"));
+// azureVariantIndex.add("image_domain", azureProductIndex.get("image_domain"));
+// azureVariantIndex.add("image_suffix", azureProductIndex.get("image_suffix"));
 //
-//	moltinProductMetaVariationMatrix.entrySet().forEach(kv1 -> {
-//		if (kv1.getValue().isJsonPrimitive()) {
+// moltinProductMetaVariationMatrix.entrySet().forEach(kv1 -> {
+// if (kv1.getValue().isJsonPrimitive()) {
 //
-//			String[] tokens = variationCache.get(kv1.getKey()).getAsString().split(".");
-//			azureVariantIndex.addProperty(tokens[0], tokens[2]); // size or color
+// String[] tokens = variationCache.get(kv1.getKey()).getAsString().split(".");
+// azureVariantIndex.addProperty(tokens[0], tokens[2]); // size or color
 //
-//			String childProductUUID = kv1.getValue().getAsString();
+// String childProductUUID = kv1.getValue().getAsString();
 //
-//			JsonObject moltinProductChild = cache.getAsJsonObject(childProductUUID);
-//			azureVariantIndex.addProperty("@search.action", "upload");
-//			azureVariantIndex.add("id", moltinProductChild.get("id"));
-//			azureVariantIndex.add("productId", moltinProduct.get("id"));
+// JsonObject moltinProductChild = cache.getAsJsonObject(childProductUUID);
+// azureVariantIndex.addProperty("@search.action", "upload");
+// azureVariantIndex.add("id", moltinProductChild.get("id"));
+// azureVariantIndex.add("productId", moltinProduct.get("id"));
 //
-//			azureVariantIndex.add("price", moltinProductChild.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
-//			azureVariantIndex.add("sku", moltinProductChild.get("sku"));
+// azureVariantIndex.add("price",
+// moltinProductChild.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
+// azureVariantIndex.add("sku", moltinProductChild.get("sku"));
 //
-//		} else {
-//			moltinProductMetaVariationMatrix.entrySet().forEach(kv2 -> {
+// } else {
+// moltinProductMetaVariationMatrix.entrySet().forEach(kv2 -> {
 //
-//				String[] tokens = variationCache.get(kv2.getKey()).getAsString().split(".");
-//				azureVariantIndex.addProperty(tokens[0], tokens[2]); // size or color
+// String[] tokens = variationCache.get(kv2.getKey()).getAsString().split(".");
+// azureVariantIndex.addProperty(tokens[0], tokens[2]); // size or color
 //
-//				String childProductUUID = kv2.getValue().getAsString();
+// String childProductUUID = kv2.getValue().getAsString();
 //
-//				JsonObject moltinProductChild = cache.getAsJsonObject(childProductUUID);
-//				azureVariantIndex.addProperty("@search.action", "upload");
-//				azureVariantIndex.add("id", moltinProductChild.get("id"));
-//				azureVariantIndex.add("productId", moltinProduct.get("id"));
+// JsonObject moltinProductChild = cache.getAsJsonObject(childProductUUID);
+// azureVariantIndex.addProperty("@search.action", "upload");
+// azureVariantIndex.add("id", moltinProductChild.get("id"));
+// azureVariantIndex.add("productId", moltinProduct.get("id"));
 //
-//				azureVariantIndex.add("price", moltinProductChild.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
-//				azureVariantIndex.add("sku", moltinProductChild.get("sku"));
+// azureVariantIndex.add("price",
+// moltinProductChild.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
+// azureVariantIndex.add("sku", moltinProductChild.get("sku"));
 //
-//			});
-//		}
+// });
+// }
 //
-//	});
+// });
 //
-//}
+// }

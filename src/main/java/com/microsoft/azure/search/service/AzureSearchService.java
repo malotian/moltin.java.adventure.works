@@ -24,13 +24,17 @@ public class AzureSearchService {
 
 		final Index categoriesIndex = new Index()
 				.withFields(Arrays.asList(
-						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false).withFacetable(false)
+						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true)
+								.withSortable(false).withFacetable(false)
 								.withKey(true).withAnalyzer(null),
-						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(true)
+						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true)
+								.withSortable(true)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("parent").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("parent").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null)))
 				.withCorsOptions(new CorsOptions().withAllowedOrigins(Arrays.asList("*")).withMaxAgeInSeconds(30));
 
@@ -41,33 +45,47 @@ public class AzureSearchService {
 	public void defineProductsIndex() {
 		final Index productsIndex = new Index()
 				.withFields(Arrays.asList(
-						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
+						new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true)
+								.withSortable(false).withFacetable(false)
 								.withKey(true).withAnalyzer(null),
-						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("title").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("description").withType("Edm.String").withSearchable(true).withFilterable(false).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("category").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(true)
+						new Field().withName("category").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true)
+								.withSortable(true)
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("categoryId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("categoryId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null),
-						new Field().withName("subcategory").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(true)
+						new Field().withName("subcategory").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true)
+								.withSortable(true)
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("subcategoryId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("subcategoryId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null),
-						new Field().withName("modifiers").withType("Collection(Edm.String)").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("modifiers").withType("Collection(Edm.String)").withSearchable(false).withFilterable(false)
+								.withRetrievable(true).withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null),
-						new Field().withName("color").withType("Collection(Edm.String)").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("color").withType("Collection(Edm.String)").withSearchable(true).withFilterable(true)
+								.withRetrievable(true).withSortable(false)
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("size").withType("Collection(Edm.String)").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
+						new Field().withName("size").withType("Collection(Edm.String)").withSearchable(true).withFilterable(true)
+								.withRetrievable(true).withSortable(false)
 								.withFacetable(true).withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("sku").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
+						new Field().withName("sku").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true)
+								.withSortable(false).withFacetable(false)
 								.withKey(false).withAnalyzer("standard.lucene"),
-						new Field().withName("price").withType("Edm.Double").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("price").withType("Edm.Double").withSearchable(false).withFilterable(false).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(true).withKey(false).withAnalyzer(null),
-						new Field().withName("image_domain").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("image_domain").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null),
-						new Field().withName("image_suffix").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+						new Field().withName("image_suffix").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true)
+								.withSortable(false)
 								.withFacetable(false).withKey(false).withAnalyzer(null)))
 				.withCorsOptions(new CorsOptions().withAllowedOrigins(Arrays.asList("*")).withMaxAgeInSeconds(30));
 
@@ -77,21 +95,29 @@ public class AzureSearchService {
 
 	public void defineVariantsIndex() {
 		final Index variantsIndex = new Index().withFields(Arrays.asList(
-				new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
+				new Field().withName("id").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false)
+						.withFacetable(false)
 						.withKey(true).withAnalyzer(null),
-				new Field().withName("productId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
+				new Field().withName("productId").withType("Edm.String").withSearchable(false).withFilterable(true).withRetrievable(true)
+						.withSortable(false).withFacetable(false)
 						.withKey(false).withAnalyzer(null),
-				new Field().withName("color").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(true).withFacetable(true)
+				new Field().withName("color").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true)
+						.withSortable(true).withFacetable(true)
 						.withKey(false).withAnalyzer("standard.lucene"),
-				new Field().withName("size").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(true).withFacetable(true)
+				new Field().withName("size").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(true)
+						.withFacetable(true)
 						.withKey(false).withAnalyzer("standard.lucene"),
-				new Field().withName("sku").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false).withFacetable(false)
+				new Field().withName("sku").withType("Edm.String").withSearchable(true).withFilterable(true).withRetrievable(true).withSortable(false)
+						.withFacetable(false)
 						.withKey(false).withAnalyzer("standard.lucene"),
-				new Field().withName("price").withType("Edm.Double").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(true).withFacetable(true)
+				new Field().withName("price").withType("Edm.Double").withSearchable(false).withFilterable(false).withRetrievable(true)
+						.withSortable(true).withFacetable(true)
 						.withKey(false).withAnalyzer(null),
-				new Field().withName("image_domain").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+				new Field().withName("image_domain").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true)
+						.withSortable(false)
 						.withFacetable(false).withKey(false).withAnalyzer(null),
-				new Field().withName("image_suffix").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true).withSortable(false)
+				new Field().withName("image_suffix").withType("Edm.String").withSearchable(false).withFilterable(false).withRetrievable(true)
+						.withSortable(false)
 						.withFacetable(false).withKey(false).withAnalyzer(null)))
 				.withCorsOptions(new CorsOptions().withAllowedOrigins(Arrays.asList("*")).withMaxAgeInSeconds(30));
 
@@ -212,15 +238,18 @@ public class AzureSearchService {
 			final JsonObject moltinProduct = p.getAsJsonObject();
 			final JsonObject azureProductIndex = new JsonObject();
 
+			String[] skuParts = moltinProduct.get("sku").getAsString().split("-");
+			String productSku = skuParts[0] + "-" + skuParts[1];
+
 			// try to set parent
-			moltinProduct.add("productId", skus.get(moltinProduct.get("sku").getAsString().substring(0, 7)));
+			moltinProduct.add("productId", skus.get(productSku));
 
 			azureProductIndex.addProperty("@search.action", "upload");
 			azureProductIndex.add("id", moltinProduct.get("id"));
 			azureProductIndex.add("title", moltinProduct.get("name"));
 			azureProductIndex.add("description", moltinProduct.get("description"));
 			azureProductIndex.add("price", moltinProduct.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
-			azureProductIndex.addProperty("sku", moltinProduct.get("sku").getAsString().substring(0, 7));
+			azureProductIndex.addProperty("sku", productSku);
 
 			LOGGER.debug("added azureProductIndex for id: {}, sku: {}", azureProductIndex.get("id"), azureProductIndex.get("sku"));
 
@@ -284,11 +313,14 @@ public class AzureSearchService {
 			}
 
 			boolean isVariant = !moltinProduct.get("id").equals(moltinProduct.get("productId"));
+			
 			if (!isVariant) {
 				azureProductsIndex.add(azureProductIndex);
-				if (moltinProduct.has("meta")) {
+				isVariant = !moltinProduct.has("meta");
+				if (!isVariant) {
 					final JsonObject moltinProductMeta = moltinProduct.getAsJsonObject("meta");
-					if (moltinProductMeta.has("variations")) {
+					isVariant = !moltinProductMeta.has("variations");
+					if (!isVariant) {
 						azureProductIndex.add("modifiers", new JsonArray());
 						final JsonArray moltinProductVariations = moltinProductMeta.getAsJsonArray("variations");
 						moltinProductVariations.forEach(_v -> {
@@ -305,9 +337,9 @@ public class AzureSearchService {
 						});
 					}
 				}
-			} 
-			
-			if (isVariant){
+			}
+
+			if (isVariant) {
 				final JsonObject azureVariantIndex = new JsonObject();
 				azureVariantIndex.add("id", moltinProduct.get("id"));
 				azureVariantIndex.add("productId", moltinProduct.get("productId"));
@@ -315,7 +347,7 @@ public class AzureSearchService {
 				azureVariantIndex.add("image_domain", azureProductIndex.get("image_domain"));
 				azureVariantIndex.add("image_suffix", azureProductIndex.get("image_suffix"));
 				azureVariantIndex.add("price", moltinProduct.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
-				azureVariantIndex.addProperty("sku", azureProductIndex.get("sku").getAsString().substring(0, 7));
+				azureVariantIndex.addProperty("sku", productSku);
 
 				String description = moltinProduct.get("description").getAsString();
 				String[] descriptionTokens = description.split(",");
@@ -346,53 +378,3 @@ public class AzureSearchService {
 	}
 
 }
-
-// if (moltinProductMeta.has("variation_matrix")) {
-// JsonObject moltinProductMetaVariationMatrix =
-// moltinProductMeta.getAsJsonObject("variation_matrix");
-// final JsonObject azureVariantIndex = new JsonObject();
-// azureVariantsIndex.add(azureVariantIndex);
-//
-// azureVariantIndex.add("image_domain", azureProductIndex.get("image_domain"));
-// azureVariantIndex.add("image_suffix", azureProductIndex.get("image_suffix"));
-//
-// moltinProductMetaVariationMatrix.entrySet().forEach(kv1 -> {
-// if (kv1.getValue().isJsonPrimitive()) {
-//
-// String[] tokens = variationCache.get(kv1.getKey()).getAsString().split(".");
-// azureVariantIndex.addProperty(tokens[0], tokens[2]); // size or color
-//
-// String childProductUUID = kv1.getValue().getAsString();
-//
-// JsonObject moltinProductChild = cache.getAsJsonObject(childProductUUID);
-// azureVariantIndex.addProperty("@search.action", "upload");
-// azureVariantIndex.add("id", moltinProductChild.get("id"));
-// azureVariantIndex.add("productId", moltinProduct.get("id"));
-//
-// azureVariantIndex.add("price",
-// moltinProductChild.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
-// azureVariantIndex.add("sku", moltinProductChild.get("sku"));
-//
-// } else {
-// moltinProductMetaVariationMatrix.entrySet().forEach(kv2 -> {
-//
-// String[] tokens = variationCache.get(kv2.getKey()).getAsString().split(".");
-// azureVariantIndex.addProperty(tokens[0], tokens[2]); // size or color
-//
-// String childProductUUID = kv2.getValue().getAsString();
-//
-// JsonObject moltinProductChild = cache.getAsJsonObject(childProductUUID);
-// azureVariantIndex.addProperty("@search.action", "upload");
-// azureVariantIndex.add("id", moltinProductChild.get("id"));
-// azureVariantIndex.add("productId", moltinProduct.get("id"));
-//
-// azureVariantIndex.add("price",
-// moltinProductChild.getAsJsonArray("price").get(0).getAsJsonObject().get("amount"));
-// azureVariantIndex.add("sku", moltinProductChild.get("sku"));
-//
-// });
-// }
-//
-// });
-//
-// }

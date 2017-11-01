@@ -21,6 +21,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -61,68 +62,6 @@ public class AdventureWorksData {
 			return CSVParser.parse(new File(directory.toString(), fileNameOnly + ".clean." + fileExtensionOnly), encoding, format).getRecords();
 		}
 		return CSVParser.parse(new File(directory.toString(), fileName), encoding, format).getRecords();
-	}
-
-	void checkSanity() {
-
-		final JsonObject groupedBySku = new JsonObject();
-
-		getVariants().forEach(_variant -> {
-			final JsonObject variant = _variant.getAsJsonObject();
-
-			final String sku = variant.get("sku").getAsString().substring(0, 7);
-
-			if (!groupedBySku.has(sku)) {
-				groupedBySku.add(sku, new JsonArray());
-			}
-
-			final int size1 = groupedBySku.get(sku).getAsJsonArray().size();
-
-			if (!groupedBySku.get(sku).getAsJsonArray().contains(variant.get("model"))) {
-				groupedBySku.get(sku).getAsJsonArray().add(variant.get("model"));
-			}
-			final int size2 = groupedBySku.get(sku).getAsJsonArray().size();
-
-			if (size2 > size1 && size2 > 1) {
-				LOGGER.error("variants with same sku: {}, but differnet models: {}", sku, groupedBySku.get(sku));
-				throw new RuntimeException("invalid data - products.csv");
-			}
-
-		});
-
-		getProducts().forEach(_product -> {
-			final JsonObject product = _product.getAsJsonObject();
-
-			Set<String> helper = new HashSet<>();
-
-			product.getAsJsonArray("variants").forEach(_variant -> {
-
-				final JsonObject variant = _variant.getAsJsonObject();
-				final String sku = variant.get("sku").getAsString().substring(0, 7);
-
-				helper.add(sku);
-			});
-
-			if (helper.size() <= 0)
-				return;
-
-			String skuRef = (String) helper.toArray()[0];
-			boolean match = true;
-			do {
-				skuRef = StringUtils.substring(skuRef, 0, -1);
-				for (String sku : helper) {
-					match = match && sku.startsWith(skuRef);
-				}
-			} while (!match);
-
-			if (helper.size() > 1) {
-				LOGGER.warn("variants with multiple skus, belongs to same parent: {}", helper);
-				LOGGER.warn("new sku resolved: {}", skuRef);
-			}
-
-		});
-
-		System.exit(0);
 	}
 
 	void clean(final String fileName, final String[] patternsToRemove, final Charset encoding) throws IOException {
@@ -207,56 +146,71 @@ public class AdventureWorksData {
 
 	public void initialize() throws IOException {
 
-		clean("ProductModel.csv", new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
+		clean("ProductModel.csv",
+				new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
 				StandardCharsets.UTF_16);
 
 		clean("ProductDescription.csv", new String[] { "\"" }, StandardCharsets.UTF_16);
 
 		setCategories(read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII));
-		setProducts(read("ProductModel.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"), StandardCharsets.UTF_16,
+		setProducts(read("ProductModel.csv",
+				CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"), StandardCharsets.UTF_16,
 				true));
-		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"), StandardCharsets.UTF_16));
-		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"), StandardCharsets.US_ASCII));
-		setImages(read("ProductPhoto.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
+		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"),
+				StandardCharsets.UTF_16));
+		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"),
+				StandardCharsets.US_ASCII));
+		setImages(read("ProductPhoto.csv",
+				CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
 				StandardCharsets.UTF_16, true));
-		setImagesLink(read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
+
+		setImagesLink(
+				read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
+
 		setVariants(read("Product.csv",
-				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price", "size", "sizeUnit", "weightUnit",
-						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate", "discontinuedDate", "guid",
+				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price",
+						"size", "sizeUnit", "weightUnit",
+						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate",
+						"discontinuedDate", "guid",
 						"modified"),
 				StandardCharsets.US_ASCII));
 		setOrderHeader(read("SalesOrderHeader.csv",
-				CSVFormat.TDF.withHeader("orderId", "revisionNumber", "orderDate", "dueDate", "shipDate", "status", "isOnline", "onlineNumber", "poNumber", "accountNumber",
-						"customer", "salesPerson", "territory", "billTo", "shipTo", "shipMethod", "cc", "ccCode", "currency", "subTotal", "tax", "freight", "total", "comment",
+				CSVFormat.TDF.withHeader("orderId", "revisionNumber", "orderDate", "dueDate", "shipDate", "status", "isOnline", "onlineNumber",
+						"poNumber", "accountNumber",
+						"customer", "salesPerson", "territory", "billTo", "shipTo", "shipMethod", "cc", "ccCode", "currency", "subTotal", "tax",
+						"freight", "total", "comment",
 						"guid", "date"),
 				StandardCharsets.US_ASCII));
 		setOrderDetail(read("SalesOrderDetail.csv",
-				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid", "date"),
+				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid",
+						"date"),
 				StandardCharsets.US_ASCII));
 
 		final File imagesDirectory = new File(directory.toString(), "images");
-		FileUtils.deleteDirectory(imagesDirectory);
-		FileUtils.forceMkdir(imagesDirectory);
 
-		images.forEach(_i -> {
-			final JsonObject i = _i.getAsJsonObject();
-			final String thumbnail = i.get("thumbnail").getAsString();
-			final String thumbnailFilename = i.get("thumbnail_filename").getAsString();
-			final String large = i.get("large").getAsString();
-			final String largeFilename = i.get("large_filename").getAsString();
-			LOGGER.info("Processing {} and {}", thumbnailFilename, largeFilename);
-			try {
+		if (!imagesDirectory.exists()) {
+			FileUtils.forceMkdir(imagesDirectory);
 
-				ImageIO.write(ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseHexBinary(thumbnail))), "png",
-						new FileOutputStream(new File(imagesDirectory, thumbnailFilename.replaceAll("gif", "png"))));
+			images.forEach(_i -> {
+				final JsonObject i = _i.getAsJsonObject();
+				final String thumbnail = i.get("thumbnail").getAsString();
+				final String thumbnailFilename = i.get("thumbnail_filename").getAsString();
+				final String large = i.get("large").getAsString();
+				final String largeFilename = i.get("large_filename").getAsString();
+				LOGGER.info("Processing {} and {}", thumbnailFilename, largeFilename);
+				try {
 
-				ImageIO.write(ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseHexBinary(large))), "png",
-						new FileOutputStream(new File(imagesDirectory, largeFilename.replaceAll("gif", "png"))));
+					ImageIO.write(ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseHexBinary(thumbnail))), "png",
+							new FileOutputStream(new File(imagesDirectory, thumbnailFilename.replaceAll("gif", "png"))));
 
-			} catch (final IOException e) {
-				LOGGER.error("error, processing {} and {}, exception: {}", thumbnailFilename, largeFilename, ExceptionUtils.getStackTrace(e));
-			}
-		});
+					ImageIO.write(ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseHexBinary(large))), "png",
+							new FileOutputStream(new File(imagesDirectory, largeFilename.replaceAll("gif", "png"))));
+
+				} catch (final IOException e) {
+					LOGGER.error("error, processing {} and {}, exception: {}", thumbnailFilename, largeFilename, ExceptionUtils.getStackTrace(e));
+				}
+			});
+		}
 
 		variants.forEach(_v -> {
 			final JsonObject v = _v.getAsJsonObject();
@@ -288,7 +242,7 @@ public class AdventureWorksData {
 
 			descriptionsLink.forEach(_l -> {
 				final JsonObject l = _l.getAsJsonObject();
-				if (l.get("model").equals(p.get("id")) && "en".equals(l.get("culture"))) {
+				if (l.get("model").equals(p.get("id")) && "en".equals(l.get("culture").getAsString())) {
 					descriptions.forEach(_d -> {
 						final JsonObject d = _d.getAsJsonObject();
 						if (d.get("id").equals(l.get("description"))) {
@@ -301,10 +255,13 @@ public class AdventureWorksData {
 			final JsonArray colors = new JsonArray();
 			final JsonArray sizes = new JsonArray();
 			final JsonArray varities = new JsonArray();
+
+			Set<String> sku = new HashSet<>();
+
 			variants.forEach(_v -> {
 				final JsonObject v = _v.getAsJsonObject();
 				if (v.get("model").equals(p.get("id")) && v.has("category")) {
-
+					sku.add(v.get("sku").getAsString().substring(0, 7));
 					varities.add(v);
 					if (v.has("color") && StringUtils.isNotBlank(v.get("color").getAsString()) && !colors.contains(v.get("color"))) {
 						if (!colors.contains(v.get("color"))) {
@@ -331,6 +288,27 @@ public class AdventureWorksData {
 			final JsonArray modifiers = new JsonArray();
 			modifiers.add(mod1);
 			modifiers.add(mod2);
+
+			Set<String> helper = new HashSet<>(sku);
+			while (helper.size() > 1) {
+				sku.clear();
+				for (String h : helper) {
+					sku.add(StringUtils.substring(h, 0, -1));
+				}
+				helper = new HashSet<>(sku);
+			}
+
+			if (helper.isEmpty()) {
+				helper.add("NA-" + RandomStringUtils.randomAlphabetic(1).toUpperCase() + RandomStringUtils.randomNumeric(2)
+						+ RandomStringUtils.randomAlphabetic(1).toUpperCase());
+			}
+
+			p.addProperty("sku", (String) helper.toArray()[0]);
+
+			varities.forEach(_variety -> {
+				JsonObject variety = _variety.getAsJsonObject();
+				variety.add("sku", p.get("sku"));
+			});
 
 			p.add("variants", varities);
 			p.add("modifiers", modifiers);
@@ -360,10 +338,9 @@ public class AdventureWorksData {
 
 		orderHeader.forEach(_oh -> {
 			final JsonObject oh = _oh.getAsJsonObject();
-			oh.add("details", groupedDetails.get("orderId"));
+			oh.add("details", groupedDetails.get(oh.get("orderId").getAsString()));
 		});
 
-		checkSanity();
 	}
 
 	public JsonArray read(final String fileName, final CSVFormat format, final Charset encoding) throws IOException {
@@ -379,6 +356,7 @@ public class AdventureWorksData {
 				if (strip) {
 					v = StringUtils.substring(v, 0, -1);
 				}
+
 				jo.addProperty(k, v);
 			});
 			ja.add(jo);

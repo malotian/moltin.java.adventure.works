@@ -111,6 +111,7 @@ public class MoltinStore {
 		awd.getProducts().forEach(_csvProduct -> {
 			final JsonObject csvProduct = _csvProduct.getAsJsonObject();
 
+			LOGGER.warn("product/variant: {}", csvProduct);
 			final JsonObject csvFirstProductVariant = csvProduct.getAsJsonArray("variants").size() > 0 ? csvProduct.getAsJsonArray("variants").get(0).getAsJsonObject()
 					: csvProduct;
 
@@ -129,6 +130,8 @@ public class MoltinStore {
 			final String uuidProduct = new MoltinRequest("products").create(product).get("data").getAsJsonObject().get("id").getAsString();
 			final com.moltin.api.v2.products.relationships.categories.Relationship relationshipProductCategory = new com.moltin.api.v2.products.relationships.categories.Relationship();
 
+			if (!product.getData().getDescription().equals("aaaaaaaaa"))
+				return;
 			AtomicReference<Boolean> shallBuildChildProducts = new AtomicReference<>();
 			shallBuildChildProducts.set(new Boolean(false));
 
@@ -231,8 +234,8 @@ public class MoltinStore {
 
 			});
 
-			if (shallBuildChildProducts.get())
-				new MoltinRequest("products", uuidProduct, "build").create(null);
+			//if (shallBuildChildProducts.get())
+				//new MoltinRequest("products", uuidProduct, "build").create(null);
 		});
 	}
 }

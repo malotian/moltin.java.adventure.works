@@ -9,7 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.DatatypeConverter;
@@ -87,6 +89,40 @@ public class AdventureWorksData {
 			}
 
 		});
+
+		getProducts().forEach(_product -> {
+			final JsonObject product = _product.getAsJsonObject();
+
+			Set<String> helper = new HashSet<>();
+
+			product.getAsJsonArray("variants").forEach(_variant -> {
+
+				final JsonObject variant = _variant.getAsJsonObject();
+				final String sku = variant.get("sku").getAsString().substring(0, 7);
+
+				helper.add(sku);
+			});
+
+			if (helper.size() <= 0)
+				return;
+
+			String skuRef = (String) helper.toArray()[0];
+			boolean match = true;
+			do {
+				skuRef = StringUtils.substring(skuRef, 0, -1);
+				for (String sku : helper) {
+					match = match && sku.startsWith(skuRef);
+				}
+			} while (!match);
+
+			if (helper.size() > 1) {
+				LOGGER.warn("variants with multiple skus, belongs to same parent: {}", helper);
+				LOGGER.warn("new sku resolved: {}", skuRef);
+			}
+
+		});
+
+		System.exit(0);
 	}
 
 	void clean(final String fileName, final String[] patternsToRemove, final Charset encoding) throws IOException {
@@ -343,7 +379,6 @@ public class AdventureWorksData {
 				if (strip) {
 					v = StringUtils.substring(v, 0, -1);
 				}
-
 				jo.addProperty(k, v);
 			});
 			ja.add(jo);

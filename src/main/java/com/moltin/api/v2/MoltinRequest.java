@@ -41,7 +41,8 @@ public class MoltinRequest extends RestRequest {
 			LOGGER.error("failure, entity: {}", response.readEntity(String.class));
 
 		} catch (final Exception e) {
-			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
+			LOGGER.error("failure, http-post: {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
+			LOGGER.error("failure, http-post-entity: {}", entity);
 		}
 		return null;
 	}
@@ -64,7 +65,7 @@ public class MoltinRequest extends RestRequest {
 			return response.hasEntity() ? toJsonObject(response.readEntity(String.class)) : new JsonObject();
 
 		} catch (final Exception e) {
-			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
+			LOGGER.error("failure, http-delete: {}, exceprion: {}", url, ExceptionUtils.getStackTrace(e));
 		}
 		return null;
 	}
@@ -100,12 +101,13 @@ public class MoltinRequest extends RestRequest {
 			return result;
 
 		} catch (final Exception e) {
-			LOGGER.error("failure, while {}, exceprion: {}", this.getClass(), ExceptionUtils.getStackTrace(e));
+			LOGGER.error("failure, http-get: {}, exceprion: {}", url, ExceptionUtils.getStackTrace(e));
 		}
 		return null;
 	}
 
 	Builder moltin() {
+		LOGGER.info("url: {}", url);
 		final AuthenticateResponse ar = Context.get(AuthenticateResponse.class);
 		return client().target(url).request() // $NON-NLS-1$
 				.header("Authorization", ar.getTokenType() + " " + ar.getAccessToken());

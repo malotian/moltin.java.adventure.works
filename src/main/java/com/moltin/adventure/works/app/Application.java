@@ -47,14 +47,14 @@ public class Application {
 
 			LOGGER.info("moltin.java.adventure.works.home: {}", Util.MOLTIN_JAVA_ADVENTURE_WORKS_HOME);
 
-//			application.getAdventureWorksData().dump();
-//			application.getMoltinStore().deleteFiles();
-//			application.getMoltinStore().deleteCategories();
-//			application.getMoltinStore().deleteProducts();
-//			application.getMoltinStore().populate(application.getAdventureWorksData());
-//			
-//			RecommendationHelper rh = new RecommendationHelper();
-//			rh.prepare(application.getAdventureWorksData());
+			application.getAdventureWorksData().dump();
+			application.getMoltinStore().deleteFiles();
+			application.getMoltinStore().deleteCategories();
+			application.getMoltinStore().deleteProducts();
+			application.getMoltinStore().populate(application.getAdventureWorksData());
+
+			RecommendationHelper recommendationHelper = new RecommendationHelper();
+			recommendationHelper.process(application.getAdventureWorksData());
 
 			final AzureSearchService ass = new AzureSearchService();
 
@@ -68,7 +68,6 @@ public class Application {
 			ass.defineProductsIndex();
 			ass.defineVariantsIndex();
 			ass.populateIndexes(application.getMoltinStore());
-
 
 		} catch (final Exception e) {
 			LOGGER.error("error: {}", ExceptionUtils.getStackTrace(e));
@@ -96,8 +95,8 @@ public class Application {
 		setMoltinStore(new MoltinStore());
 		getMoltinStore().initialize();
 
-//		setAdventureWorksData(new AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
-//		getAdventureWorksData().initialize();
+		setAdventureWorksData(new AdventureWorksData(Paths.get(configuration.getAdventureWorksDataLocation())));
+		getAdventureWorksData().initialize();
 
 		return this;
 	}

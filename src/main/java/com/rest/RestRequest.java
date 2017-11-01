@@ -28,7 +28,7 @@ public class RestRequest {
 		final ClientConfig config = new ClientConfig();
 		config.register(JacksonFeature.class);
 		config.register(JacksonJsonProvider.class);
-		config.register(jersyLoggingFeature());
+		//config.register(jersyLoggingFeature());
 		config.register(MultiPartFeature.class);
 		client = JerseyClientBuilder.createClient(config);
 	}
@@ -40,7 +40,7 @@ public class RestRequest {
 	public static LoggingFeature jersyLoggingFeature() {
 		final java.util.logging.Logger jerseyLogger = java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME);
 		jerseyLogger.setLevel(java.util.logging.Level.ALL);
-		return new LoggingFeature(jerseyLogger, Verbosity.PAYLOAD_TEXT);
+		return new LoggingFeature(jerseyLogger, Verbosity.HEADERS_ONLY);
 	}
 
 	public static JsonObject toJsonObject(final String input) {

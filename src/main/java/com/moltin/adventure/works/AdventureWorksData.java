@@ -78,7 +78,7 @@ public class AdventureWorksData {
 
 	public void dump() throws JsonProcessingException, IOException {
 
-		final File dumpDirectory = new File(directory.toString(), "dump");
+		final File dumpDirectory = new File(directory.toString(), "processed");
 
 		FileUtils.deleteDirectory(dumpDirectory);
 		FileUtils.forceMkdir(dumpDirectory);
@@ -146,44 +146,33 @@ public class AdventureWorksData {
 
 	public void initialize() throws IOException {
 
-		clean("ProductModel.csv",
-				new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
+		clean("ProductModel.csv", new String[] { "<root.+?>[\\s\\S]+?</root>", "<p1:ProductDescription.+?>[\\s\\S]+?</p1:ProductDescription>", "<\\?.+?\\?>" },
 				StandardCharsets.UTF_16);
 
 		clean("ProductDescription.csv", new String[] { "\"" }, StandardCharsets.UTF_16);
 
 		setCategories(read("ProductSubcategory.csv", CSVFormat.TDF.withHeader("id", "parent", "name", "guid", "date"), StandardCharsets.US_ASCII));
-		setProducts(read("ProductModel.csv",
-				CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"), StandardCharsets.UTF_16,
+		setProducts(read("ProductModel.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "name", "description", "instructions", "guid", "modified"), StandardCharsets.UTF_16,
 				true));
-		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"),
-				StandardCharsets.UTF_16));
-		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"),
-				StandardCharsets.US_ASCII));
-		setImages(read("ProductPhoto.csv",
-				CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
+		setDescriptions(read("ProductDescription.csv", CSVFormat.TDF.withRecordSeparator("\n").withHeader("id", "description", "guid", "modified"), StandardCharsets.UTF_16));
+		setDescriptionsLink(read("ProductModelProductDescriptionCulture.csv", CSVFormat.TDF.withHeader("model", "description", "culture", "modified"), StandardCharsets.US_ASCII));
+		setImages(read("ProductPhoto.csv", CSVFormat.TDF.withDelimiter('|').withHeader("id", "thumbnail", "thumbnail_filename", "large", "large_filename", "date"),
 				StandardCharsets.UTF_16, true));
 
-		setImagesLink(
-				read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
+		setImagesLink(read("ProductProductPhoto.csv", CSVFormat.TDF.withHeader("product", "image", "primary", "modified"), StandardCharsets.US_ASCII));
 
 		setVariants(read("Product.csv",
-				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price",
-						"size", "sizeUnit", "weightUnit",
-						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate",
-						"discontinuedDate", "guid",
+				CSVFormat.TDF.withHeader("id", "name", "sku", "make", "finished", "color", "safetyStockLevel", "reorderPoint", "cost", "price", "size", "sizeUnit", "weightUnit",
+						"weight", "daysToManufacture", "productLine", "class", "style", "subcategory", "model", "sellStartDate", "sellEndDate", "discontinuedDate", "guid",
 						"modified"),
 				StandardCharsets.US_ASCII));
 		setOrderHeader(read("SalesOrderHeader.csv",
-				CSVFormat.TDF.withHeader("orderId", "revisionNumber", "orderDate", "dueDate", "shipDate", "status", "isOnline", "onlineNumber",
-						"poNumber", "accountNumber",
-						"customer", "salesPerson", "territory", "billTo", "shipTo", "shipMethod", "cc", "ccCode", "currency", "subTotal", "tax",
-						"freight", "total", "comment",
+				CSVFormat.TDF.withHeader("orderId", "revisionNumber", "orderDate", "dueDate", "shipDate", "status", "isOnline", "onlineNumber", "poNumber", "accountNumber",
+						"customer", "salesPerson", "territory", "billTo", "shipTo", "shipMethod", "cc", "ccCode", "currency", "subTotal", "tax", "freight", "total", "comment",
 						"guid", "date"),
 				StandardCharsets.US_ASCII));
 		setOrderDetail(read("SalesOrderDetail.csv",
-				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid",
-						"date"),
+				CSVFormat.TDF.withHeader("orderId", "recordId", "tracking", "quantity", "productId", "offerId", "price", "discount", "total", "guid", "date"),
 				StandardCharsets.US_ASCII));
 
 		final File imagesDirectory = new File(directory.toString(), "images");
@@ -230,8 +219,6 @@ public class AdventureWorksData {
 				final JsonObject c = _c.getAsJsonObject();
 				if (c.get("id").equals(v.get("subcategory"))) {
 					v.add("category", c);
-					// LOGGER.debug("variant: {}, category: {}", v, c);
-
 				}
 			});
 		});
@@ -256,7 +243,7 @@ public class AdventureWorksData {
 			final JsonArray sizes = new JsonArray();
 			final JsonArray varities = new JsonArray();
 
-			Set<String> sku = new HashSet<>();
+			final Set<String> sku = new HashSet<>();
 
 			variants.forEach(_v -> {
 				final JsonObject v = _v.getAsJsonObject();
@@ -292,21 +279,20 @@ public class AdventureWorksData {
 			Set<String> helper = new HashSet<>(sku);
 			while (helper.size() > 1) {
 				sku.clear();
-				for (String h : helper) {
+				for (final String h : helper) {
 					sku.add(StringUtils.substring(h, 0, -1));
 				}
 				helper = new HashSet<>(sku);
 			}
 
 			if (helper.isEmpty()) {
-				helper.add("NA-" + RandomStringUtils.randomAlphabetic(1).toUpperCase() + RandomStringUtils.randomNumeric(2)
-						+ RandomStringUtils.randomAlphabetic(1).toUpperCase());
+				helper.add("NA-" + RandomStringUtils.randomAlphabetic(1).toUpperCase() + RandomStringUtils.randomNumeric(2) + RandomStringUtils.randomAlphabetic(1).toUpperCase());
 			}
 
 			p.addProperty("sku", (String) helper.toArray()[0]);
 
 			varities.forEach(_variety -> {
-				JsonObject variety = _variety.getAsJsonObject();
+				final JsonObject variety = _variety.getAsJsonObject();
 				variety.add("sku", p.get("sku"));
 			});
 
@@ -403,5 +389,4 @@ public class AdventureWorksData {
 	public void setVariants(final JsonArray variants) {
 		this.variants = variants;
 	}
-
 }

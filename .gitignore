@@ -25,8 +25,7 @@ hs_err_pid*
 /bin/
 /build/
 /logs/
+/moltin-data/
 /gradle/
-/moltin-data
 /.zip
 /.rar
-/gradle.properties
